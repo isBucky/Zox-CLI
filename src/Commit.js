@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import shell from 'shelljs';
+const shell = require('shelljs');
 
 let [branch, message] = process.argv.slice(2), date = new Date(),
   dateCommit = `${date.getFullYear()}/${String(date.getMonth()).padStart(2, '0')}/${String(date.getDay()).padStart(2, '0')}`;

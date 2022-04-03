@@ -1,20 +1,16 @@
 'use strict';
 
-import { writeFile, readFile } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
-import { resolve } from 'node:path';
-
-import inquirer from 'inquirer';
-import { sleep } from 'bucky.js';
-import shell from 'shelljs';
-import chalk from 'chalk';
-
-import Command from '../Command.mjs';
-
-const
-  __dirname = import.meta.url.slice(7, import.meta.url.lastIndexOf('/')),
-  __filename = import.meta.url.slice(7);
+const { writeFile, readFile } = require('node:fs'),
+  { mkdir } = require('node:fs/promises'),
+  { resolve } = require('node:path');
   
+const inquirer = require('inquirer'),
+  { sleep } = require('bucky.js'),
+  shell = require('shelljs'),
+  chalk = require('chalk');
+  
+const Command = require('../Command.js');
+
 class Template extends Command {
   constructor(program) {
     super(program, __filename);
@@ -166,4 +162,4 @@ class Template extends Command {
   }
 }
 
-export default Template;
+module.exports = Template;

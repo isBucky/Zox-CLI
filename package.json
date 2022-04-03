@@ -8,8 +8,8 @@
   "author": "Bucky.br <bucky.developer@gmail.com>",
   "license": "Apache-2.0",
   "bin": {
-    "create": "/index.mjs",
-    "commit": "/src/Commit.mjs"
+    "create": "/index.js",
+    "commit": "/src/Commit.js"
   },
   "dependencies": {
     "shelljs": "latest",

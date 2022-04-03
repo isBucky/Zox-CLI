@@ -2,21 +2,18 @@
 
 'use strict';
 
-import { readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { Command } from 'commander';
-
-const
-  __dirname = import.meta.url.slice(7, import.meta.url.lastIndexOf('/')),
-  __filename = import.meta.url.slice(7);
+const _package = require('./package.json'),
+  { readdirSync } = require('node:fs'),
+  { resolve } = require('node:path'),
+  { Command } = require('commander');
   
 class BuilderProgram extends Command {
   constructor() {
     super();
     
-    this.name('create');
-    this.description('A command line (CLI) to facilitate the creation of projects (private).');
-    this.version('1.0.0');
+    this.name('builder');
+    this.description(_package.description);
+    this.version(_package.version);
     
     this.loadCommands();
   }
@@ -26,7 +23,7 @@ class BuilderProgram extends Command {
       .filter(i => i.endsWith('.js'))
       .forEach(async(file, i, arr) => {
         try {
-          let CommandLine = (await import(resolve(__dirname, 'src', 'structures', 'commands', file))).default;
+          let CommandLine = require(resolve(__dirname, 'src', 'structures', 'commands', file));
           CommandLine = new CommandLine(this);
           return CommandLine.run(this.command(CommandLine.name));
         }
