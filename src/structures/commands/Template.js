@@ -41,8 +41,8 @@ class Template extends Command {
       name: 'templateName', type: 'rawlist',
       message: 'Which template do you want to use?',
       choices: [
-        'react-app', 'react-native', 'rest-api',
-        'npm-project', 'exit'
+        'react-app', 'react-native', 'next-app',
+        'rest-api', 'npm-project', 'exit'
       ]
     }, {
       name: 'projectName', type: 'input',
@@ -64,6 +64,15 @@ class Template extends Command {
       case 'react-app': break;
       
       case 'react-native': break;
+      
+      case 'next-app':
+        await this.createDirectories(projectName, [ 'src/pages', 'src/styles', 'public' ]);
+        await sleep(100);
+        await this.createFiles(projectName, answers, [
+          'src/pages/_app.jsx', 'src/pages/_document.jsx',
+          'src/pages/index.jsx', 'package.json', 'next.config.js'
+        ]);
+        break;
       
       case 'rest-api':
         await this.createDirectories(projectName, [
