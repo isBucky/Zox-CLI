@@ -1,0 +1,51 @@
+'use strict';
+
+import { resolve } from 'node:path';
+import sequelize from 'sequelize';
+import { readdir } from 'node:fs';
+
+const url = import.meta.url,
+  dirname = url.slice(7, url.lastIndexOf('/'));
+  
+class ModelManager {
+  static loadModels(db) {
+    return new Promise((res, rej) =>
+      readdir(resolve(dirname), (err, dirs) => {
+        dirs = dirs.filter(i => !i.endsWith('.js'));
+        if (err) return rej(err);
+        if (!dirs.length) return res(true);
+        
+        dirs.forEach((dir, index, arr) =>
+          readdir(resolve(dirname, dir), (err, files) => {
+            if (err) return rej(err);
+            if (!files.length && (index + 1) !== arr.length) return;
+            if (!files.length && (index + 1) == arr.length) return res(true);
+            
+            files.filter(i => i.endsWith('.js')).forEach(async(file, index2, arr2) => {
+              try {
+                let data = (await import(`./${dir}/${file}`)).default;
+                (data(sequelize.Model, sequelize.DataTypes)).init(db);
+                if ((index + 1) == arr.length && (index2 + 1) == arr2.length) return res(true);
+              } catch(err) { rej(err); }
+            });
+          })
+        );
+      })
+    );
+  }
+  
+  static loadModelsAssociate(db) {
+    return new Promise((res, rej) => {
+      let models = Object.entries(db.models ?? {});
+        models = models.filter(i => i[1]?.associate);
+        
+      if (!models.length) return res(true);
+      models.forEach((v, i, arr) => {
+        v[1].associate(db.models);
+        if ((i + 1) == arr.length) return res(true);
+      });
+   });
+  }
+}
+
+export default ModelManager;

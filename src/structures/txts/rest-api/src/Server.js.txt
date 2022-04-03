@@ -1,0 +1,57 @@
+'use strict';
+
+import WebsocketManager from './websocket/Websocket.js';
+import rateLimit from 'express-rate-limit';
+import express from 'express';
+
+import { createServer } from 'node:http';
+import helmet from 'helmet';
+import logger from 'morgan';
+import cors from 'cors';
+
+class Server {
+  constructor(db) {
+    this.app = express();
+    this.server = createServer(this.app);
+    this.websocket = new WebsocketManager(this.server);
+    this.port = process.env.PORT ?? 3e3;
+    this.cache = new Map();
+    
+    this.app
+      .use(logger('common')).use(express.json())
+      .use(express.urlencoded({ extended: true }))
+      .use(cors()).use(helmet())
+      .use(this.sqlInjection())
+      
+      .use(rateLimit({
+        windowMs: 1e3 * 60 * 15,
+        max: 50, standardHeaders: true,
+        legacyHeaders: false,
+      }))
+      
+      .get('/', (req, res) => res.status(200).end());
+  }
+  
+  sqlInjection() {
+    let isSqlInjection = (str) => !!([
+        new RegExp('w*((%27)|(\'))((%6F)|o|(%4F))((%72)|r|(%52))', 'i'),
+        new RegExp('((%3D)|(=))[^\n]*((%27)|(\')|(--)|(%3B)|(;))', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%23)|(#)', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%22)|(\")', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%60)|(\`)', 'i'),
+        new RegExp('((%27)|(\'))union', 'i')
+      ].map(i => i.test(str)).filter(Boolean).length);
+      
+    return ((req, res, next) => {
+      if (isSqlInjection(req.url)) return res.status(403).end();
+      return next();
+    });
+  }
+  
+  start() {
+    return this.server.listen(this.port, () =>
+      console.log('Server is listening on port:', this.port));
+  }
+}
+
+export default Server;

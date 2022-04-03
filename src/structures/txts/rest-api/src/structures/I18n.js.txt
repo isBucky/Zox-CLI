@@ -1,0 +1,21 @@
+'use strict';
+
+import { resolve } from 'node:path';
+import { I18n } from 'i18n';
+
+const url = import.meta.url,
+  dirname = url.slice(7, url.lastIndexOf('/'));
+  
+export default new I18n({
+  directory: resolve(dirname, 'languages'),
+  locales: ['pt-br', 'en-us'],
+  mustacheConfig: {
+    tags: ['{{', '}}'],
+    disable: false
+  },
+  defaultLocale: 'en-us',
+  objectNotation: '/',
+  updateFiles: false,
+  register: global,
+  autoReload: true
+});

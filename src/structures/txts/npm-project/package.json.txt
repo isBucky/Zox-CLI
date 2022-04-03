@@ -1,0 +1,22 @@
+{
+  "name": "{{projectName}}",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isBucky/{{projectName}}.git"
+  },
+  "keywords": [],
+  "author": "Bucky.br <bucky.developer@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/isBucky/{{projectName}}/issues"
+  },
+  "homepage": "https://github.com/isBucky/{{projectName}}#readme",
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.6.0",
+    "npm": ">=7.0.0"
+  }
+}

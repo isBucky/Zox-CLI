@@ -1,0 +1,23 @@
+{
+  "name": "Builder-CLI",
+  "version": "1.0.0",
+  "description": "A command line (CLI) to facilitate the creation of projects (private).",
+  "main": "index.mjs",
+  "scripts": {},
+  "keywords": [],
+  "author": "Bucky.br <bucky.developer@gmail.com>",
+  "license": "Apache-2.0",
+  "bin": {
+    "create": "/index.mjs",
+    "commit": "/src/Commit.mjs"
+  },
+  "dependencies": {
+    "shelljs": "latest",
+    "commander": "latest",
+    "boxen": "latest",
+    "inquirer": "latest",
+    "cli-table": "latest",
+    "chalk": "^4.1.2",
+    "bucky.js": "latest"
+  }
+}

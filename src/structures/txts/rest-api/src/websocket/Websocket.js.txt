@@ -1,0 +1,67 @@
+'use strict';
+
+import ws, { WebSocketServer } from 'ws';
+import { readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+class WebsocketManager extends WebSocketServer {
+  constructor(server) {
+    super({ server });
+    
+    this.intervalPing = this.startIntervalPing();
+    this.handlers = this.resolveHandlers();
+    
+    this.on('connection', (client, req) => {
+      client.isAlive = true;
+      client
+        .on('pong', () => (client.isAlive = true))
+        .on('message', this.message.bind(this));
+        
+      Object.defineProperty(client, '_send', {
+        value: function Send(op, data) {
+          return new Promise((res, rej) => {
+            this.send(JSON.stringify({ op, data }), null, (error) => {
+              if (error) return rej(error);
+              return res(true);
+            });
+          });
+        }
+      });
+    });
+  }
+  
+  message(message, isBinary) {
+    if (Array.isArray(message)) message = Buffer.concat(message);
+    else if (message instanceof ArrayBuffer) message = Buffer.from(message);
+    
+    message = JSON.parse(message);
+    if (!('op' in message) || !(message.op.toLowerCase() in this.handlers)) return;
+    return this.handlers[message.op.toLowerCase()](this, message);
+  }
+  
+  async resolveHandlers() {
+    let url = import.meta.url, handlers = {},
+      dirname = url.slice(7, url.lastIndexOf('/'));
+      
+    for (let file of readdirSync(resolve(dirname, 'handlers'))) {
+      if (!file.endsWith('.js')) continue;
+      let handler = (await import(`./handlers/${file}`)).default;
+      handlers[file.split('.')[0].toLowerCase()] = handler;
+    }
+    
+    return handlers;
+  }
+  
+  startIntervalPing() {
+    return setInterval(() =>
+      this.clients.forEach(client => {
+        if (!client.isAlive) return client.terminate();
+        
+        client.isAlive = false;
+        return client.ping();
+      })
+    , 3e4);
+  }
+}
+
+export default WebsocketManager;
