@@ -22,21 +22,7 @@ class Template extends Command {
       .action((...args) => this.action(...args));
   }
   
-  /**
-   * 
-   * 
-   * @param {String} [name]
-   * @param {String} [_]
-   * @param {Object} [command]
-   * 
-   * @returns {Any}
-   */
   async action(name, _, command) {
-    /**
-     * 
-     * 
-     * @type {Object} 
-     */
     let answers = await inquirer.prompt([{
       name: 'templateName', type: 'rawlist',
       message: 'Which template do you want to use?',
@@ -123,9 +109,11 @@ class Template extends Command {
     });
   }
   
-  createFiles(projectName, { templateName, installPackages }, files) {
+  createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
+    projectName = currentFolder ? process.cwd().split('/').at(-1) : projectName;
+    
     let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
-      directoryName = process.cwd().split('/').at(-1) +'/'+ projectName;
+      directoryName = process.cwd().split('/').at(-1) + !projectName.length ? '' : `/${projectName}`;
       
     this.log(chalk.bold('\nCreating the files:'));
     return new Promise((res, rej) => {
