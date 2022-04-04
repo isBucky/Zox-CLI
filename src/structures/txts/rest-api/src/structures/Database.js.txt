@@ -1,6 +1,8 @@
 'use strict';
 
 import { Sequelize } from 'sequelize';
+
+// Configuring Sequelize to connect to MySQL.
 export default new Sequelize({
   database: process.env.SQL_DB,
   username: process.env.SQL_NAME,

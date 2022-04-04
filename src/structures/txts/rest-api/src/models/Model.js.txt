@@ -7,20 +7,32 @@ import { readdir } from 'node:fs';
 const url = import.meta.url,
   dirname = url.slice(7, url.lastIndexOf('/'));
   
+/**
+ * Class responsible for managing the models.
+ * @class ModelManager
+ */
 class ModelManager {
+  /**
+   * Function responsible for loading all models.
+   * @param {Object} [db] Function reserved for the database.
+   * @return {Object<Promise>}
+   */
   static loadModels(db) {
     return new Promise((res, rej) =>
+      /* Reading directories from current folder. */
       readdir(resolve(dirname), (err, dirs) => {
         dirs = dirs.filter(i => !i.endsWith('.js'));
         if (err) return rej(err);
         if (!dirs.length) return res(true);
         
+        /* Searching for files within the directory. */
         dirs.forEach((dir, index, arr) =>
           readdir(resolve(dirname, dir), (err, files) => {
             if (err) return rej(err);
             if (!files.length && (index + 1) !== arr.length) return;
             if (!files.length && (index + 1) == arr.length) return res(true);
             
+            /* Checking if it's a file and running. */
             files.filter(i => i.endsWith('.js')).forEach(async(file, index2, arr2) => {
               try {
                 let data = (await import(`./${dir}/${file}`)).default;
@@ -34,6 +46,11 @@ class ModelManager {
     );
   }
   
+  /**
+   * This function does the part of associating one model with another.
+   * @param {Object} [db] Function reserved for the database.
+   * @return {Object<Promise>}
+   */
   static loadModelsAssociate(db) {
     return new Promise((res, rej) => {
       let models = Object.entries(db.models ?? {});

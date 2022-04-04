@@ -1,6 +1,6 @@
 'use strict';
 
-import WebsocketManager from './websocket/Websocket.js';
+import WebsocketManager from './WebsocketManager.js';
 import rateLimit from 'express-rate-limit';
 import express from 'express';
 
@@ -9,30 +9,66 @@ import helmet from 'helmet';
 import logger from 'morgan';
 import cors from 'cors';
 
+/**
+ * Class responsible for managing the server.
+ * @class Server
+ */
 class Server {
+  /**
+   * @param {Object} [db] MySQL database using sequelize.
+   */
   constructor(db) {
+    /**
+     * Variable containing information about the express server.
+     * @type {Object}
+     */
     this.app = express();
+    /**
+     * Variable containing information about the http server.
+     * @type {Object}
+     */
     this.server = createServer(this.app);
+    /**
+     * Variable containing the websocket server settings.
+     * @type {Object}
+      */
     this.websocket = new WebsocketManager(this.server);
+    /**
+     * Port on which the server will be launched.
+     * @type {Number}
+     */
     this.port = process.env.PORT ?? 3e3;
+    /**
+     * A simple cache to store some temporary information.
+     * @type {Object<Map>}
+     */
     this.cache = new Map();
     
     this.app
+      /* Loading the middlewares to configure our server. */
       .use(logger('common')).use(express.json())
       .use(express.urlencoded({ extended: true }))
       .use(cors()).use(helmet())
       .use(this.sqlInjection())
       
+      /* Setting the request rate on the server. */
       .use(rateLimit({
-        windowMs: 1e3 * 60 * 15,
-        max: 50, standardHeaders: true,
+        windowMs: 1e3 * 60 * 15, // 15 minutes
+        standardHeaders: true,
         legacyHeaders: false,
+        max: 50
       }))
       
+      /* Here is where the routes will be configured. */
       .get('/', (req, res) => res.status(200).end());
   }
   
+  /**
+   * This is a function to configure server middleware.
+   * It will basically handle the current URL, and check if it contains invalid characters.
+   */
   sqlInjection() {
+    // List of invalid characters:
     let isSqlInjection = (str) => !!([
         new RegExp('w*((%27)|(\'))((%6F)|o|(%4F))((%72)|r|(%52))', 'i'),
         new RegExp('((%3D)|(=))[^\n]*((%27)|(\')|(--)|(%3B)|(;))', 'i'),
@@ -42,12 +78,17 @@ class Server {
         new RegExp('((%27)|(\'))union', 'i')
       ].map(i => i.test(str)).filter(Boolean).length);
       
+    // Middleware configuration function:
     return ((req, res, next) => {
       if (isSqlInjection(req.url)) return res.status(403).end();
       return next();
     });
   }
   
+  /**
+   * Function to start the web server.
+   * @return {Undefined}
+   */
   start() {
     return this.server.listen(this.port, () =>
       console.log('Server is listening on port:', this.port));

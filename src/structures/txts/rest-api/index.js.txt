@@ -8,9 +8,14 @@ import Models from './src/models/Model.js';
 import Server from './src/Server.js';
 
 (async() => {
+  // Authenticating the database connection...
   await Database.authenticate();
+    // Loading models from database tables...
     await Models.loadModels(Database);
-    await Database.sync({ force: true });
+    // Synchronizing with the database...
+    await Database.sync({ alter: true });
+    // Loading associations between models...
     await Models.loadModelsAssociate(Database);
+  // Starting http server if there are no errors.
   return new Server(Database).start();
 })();
