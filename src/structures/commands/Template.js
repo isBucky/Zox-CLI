@@ -148,6 +148,7 @@ class Template extends Command {
               
               if ((i + 1) == files.length) {
                 this.log(chalk.bold(' ╰All files created successfully!'));
+                await sleep(100);
                 
                 if (installPackages) {
                   this.log(chalk.bold('\nInstalling packages...'));
