@@ -111,7 +111,7 @@ class Template extends Command {
   }
   
   createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
-    let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
+    let resolveDirectory = (...args) => resolve(process.cwd(), projectName ?? '', ...args),
       directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`,
       resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName;
       
