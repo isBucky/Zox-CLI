@@ -91,7 +91,7 @@ class Template extends Command {
   }
   
   createDirectories(projectName, dirs) {
-    let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
+    let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : proj, ...args),
       directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
       
     this.log(chalk.bold('Creating directories:'));
