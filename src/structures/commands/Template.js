@@ -42,7 +42,7 @@ class Template extends Command {
       message: 'Which template do you want to use?',
       choices: [
         'react-app', 'react-native', 'next-app',
-        'rest-api', 'npm-project', 'exit'
+        'rest-api', 'npm-project'
       ]
     }, {
       name: 'projectName', type: 'input',
