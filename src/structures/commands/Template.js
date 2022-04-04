@@ -92,17 +92,16 @@ class Template extends Command {
   
   createDirectories(projectName, dirs) {
     let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : projectName, ...args),
-      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
+      resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName
       
-    console.log(process.cwd(), process.cwd().split('/').at(-1));
     this.log(chalk.bold('Creating directories:'));
     return new Promise(async(res, rej) => {
       for (let i = 0; i < dirs.length; i++) {
         try {
           await mkdir(resolveDirectory(dirs[i]), { recursive: true });
-          this.log(chalk.bold(' ╰Directory created successfully:') + chalk.gray(` /${directoryName}/${dirs[i]}`));
+          this.log(chalk.bold(' ╰Directory created successfully:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
         } catch(err) {
-          this.log(chalk.red(' ╰Could not create directory:') + chalk.gray(` /${directoryName}/${dirs[i]}`));
+          this.log(chalk.red(' ╰Could not create directory:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
         } finally {
           if ((i + 1) == dirs.length) return this.log(chalk.bold(' ╰All directorys created successfully!')) && res(true);
         }
@@ -112,7 +111,6 @@ class Template extends Command {
   
   createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
     let resolveDirectory = (...args) => resolve(process.cwd(), projectName ?? '', ...args),
-      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`,
       resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName;
       
     this.log(chalk.bold('\nCreating the files:'));
@@ -131,8 +129,8 @@ class Template extends Command {
               .replace(new RegExp(`{{date}}`, 'gi'), (new Date()).getFullYear());
               
             writeFile(resolveDirectory(files[i]), data, async(err) => {
-              if (err) this.log(chalk.red(' ╰Could not create file:') + chalk.gray(` /${directoryName}/${files[i]}`));
-              else this.log(chalk.bold(' ╰File created successfully:') + chalk.gray(` /${directoryName}/${files[i]}`));
+              if (err) this.log(chalk.red(' ╰Could not create file:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
+              else this.log(chalk.bold(' ╰File created successfully:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
               
               if ((i + 1) == files.length) {
                 this.log(chalk.bold(' ╰All files created successfully!'));
