@@ -21,7 +21,8 @@
     "cors": "latest",
     "axios": "latest",
     "bucky.js": "latest",
-    "i18n": "latest"
+    "i18n": "latest",
+    "ws": "latest"
   },
   "optionalDependencies": {
     "bufferutil": "latest",
