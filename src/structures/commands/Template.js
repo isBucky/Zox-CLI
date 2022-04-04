@@ -91,9 +91,10 @@ class Template extends Command {
   }
   
   createDirectories(projectName, dirs) {
-    let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : proj, ...args),
+    let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : projectName, ...args),
       directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
       
+    console.log(process.cwd(), process.cwd().split('/').at(-1));
     this.log(chalk.bold('Creating directories:'));
     return new Promise(async(res, rej) => {
       for (let i = 0; i < dirs.length; i++) {
@@ -110,8 +111,9 @@ class Template extends Command {
   }
   
   createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
-    let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : projectName, ...args),
-      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
+    let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
+      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`,
+      resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName;
       
     this.log(chalk.bold('\nCreating the files:'));
     return new Promise((res, rej) => {
@@ -124,8 +126,8 @@ class Template extends Command {
         readFile(resolve(__dirname, '..', 'txts', templateName, filePath, `${fileName}.txt`), 'utf8',
           (err, data) => {
             if (err) return this.log(err);
-            data = data.replace(new RegExp(`{{projectName}}`, 'gi'), projectName)
-              .replace(new RegExp(`{{projectNameLowerCase}}`, 'gi'), projectName.toLowerCase())
+            data = data.replace(new RegExp(`{{projectName}}`, 'gi'), resolvedProjectName)
+              .replace(new RegExp(`{{projectNameLowerCase}}`, 'gi'), resolvedProjectName.toLowerCase())
               .replace(new RegExp(`{{date}}`, 'gi'), (new Date()).getFullYear());
               
             writeFile(resolveDirectory(files[i]), data, async(err) => {
@@ -138,7 +140,7 @@ class Template extends Command {
                 
                 if (installPackages) {
                   this.log(chalk.bold('\nInstalling packages...'));
-                  let cmdShell = projectName.length ? `cd ${projectName} && yarn` : `yarn`,
+                  let cmdShell = projectName ? `cd ${projectName} && yarn` : `yarn`,
                     { stdout, stderr } = await shell.exec(cmdShell, { silent: true });
                     
                   if (stderr.length) this.log(chalk.red(' -'), chalk.bold('There was an error installing the packages:'), chalk.red(stderr.trim()));
