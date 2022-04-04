@@ -44,8 +44,7 @@ class Template extends Command {
       default: false
     }]);
     
-    let projectName = !answers.currentFolder ? answers.projectName : process.cwd().split('/').at(-1);
-    console.log(projectName)
+    let projectName = !answers.currentFolder ? answers.projectName : null;
     this.log(chalk.bold('\nLoading template...'));
     switch(answers.templateName) {
       case 'react-app': break;
@@ -93,7 +92,7 @@ class Template extends Command {
   
   createDirectories(projectName, dirs) {
     let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
-      directoryName = process.cwd().split('/').at(-1) + `/${projectName}`;
+      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
       
     this.log(chalk.bold('Creating directories:'));
     return new Promise(async(res, rej) => {
@@ -111,8 +110,8 @@ class Template extends Command {
   }
   
   createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
-    let resolveDirectory = (...args) => resolve(process.cwd(), projectName, ...args),
-      directoryName = process.cwd().split('/').at(-1) + `/${projectName}`;
+    let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : projectName, ...args),
+      directoryName = process.cwd().split('/').at(-1) + !projectName ? '' : `/${projectName}`;
       
     this.log(chalk.bold('\nCreating the files:'));
     return new Promise((res, rej) => {
