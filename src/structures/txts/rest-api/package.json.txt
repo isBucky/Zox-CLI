@@ -21,6 +21,9 @@
     "cors": "latest",
     "axios": "latest",
     "bucky.js": "latest",
+    "express-rate-limit": "latest",
+    "morgan": "latest",
+    "helmet": "latest",
     "i18n": "latest",
     "ws": "latest"
   },
