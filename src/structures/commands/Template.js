@@ -28,7 +28,7 @@ class Template extends Command {
       message: 'Which template do you want to use?',
       choices: [
         'react-app', 'react-native', 'next-app',
-        'rest-api', 'npm-project'
+        'rest-api', 'websocket-client', 'npm-project'
       ]
     }, {
       name: 'projectName', type: 'input',
@@ -61,6 +61,23 @@ class Template extends Command {
         break;
       
       case 'rest-api':
+        await this.createDirectories(projectName, [
+          'src/websocket/handlers', 'src/structures/languages',
+          'src/routes/controllers', 'src/routes/middlewares',
+          'src/models'
+        ]);
+        await sleep(100);
+        await this.createFiles(projectName, answers, [
+          'index.js', 'package.json', '.gitignore', 'LICENSE',
+          'Procfile', '.env', 'src/Server.js',
+          
+          'src/websocket/Websocket.js', 'src/structures/Database.js',
+          'src/structures/I18n.js', 'src/structures/languages/pt-br.json',
+          'src/structures/languages/en-us.json', 'src/models/Model.js'
+        ]);
+        break;
+        
+      case 'websocket-client':
         await this.createDirectories(projectName, [
           'src/websocket/handlers', 'src/structures/languages',
           'src/routes/controllers', 'src/routes/middlewares',

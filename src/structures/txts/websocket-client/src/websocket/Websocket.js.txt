@@ -1,0 +1,82 @@
+'use strict';
+
+import { readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Websocket from 'ws';
+
+/**
+ * Class that manages the websocket client.
+ * @class WebsocketManager
+ * @extends {WebSocket}
+ */
+class WebsocketManager extends WebSocket {
+  /**
+   * @param {Object} [server] Reserved parameter for the http server.
+   */
+  constructor(...args) {
+    super(...args);
+    /**
+     * Variable containing all the handlers of requests made via websocket.
+     * @type {Object}
+     */
+    this.handlers = this.resolveHandlers();
+    this.on('message', this.message);
+  }
+  
+  /**
+   * Function whose functionality is to manage all messages received via websocket.
+   * 
+   * @param {Object} [message] Message received via websocket.
+   * @param {Boolean} [isBinary] Value identifying whether the value is binary or not.
+   * 
+   * @return {Undefined}
+   */
+  message(message, isBinary) {
+    if (Array.isArray(message)) message = Buffer.concat(message);
+    else if (message instanceof ArrayBuffer) message = Buffer.from(message);
+    
+    message = JSON.parse(message);
+    if (!('op' in message) || !(message.op.toLowerCase() in this.handlers)) return;
+    this.handlers[message.op.toLowerCase()](this, message);
+  }
+  
+  /**
+   * This function is the part of loading all the handlers of requests made via websocket.
+   * @return {Object}
+   */
+  async resolveHandlers() {
+    let url = import.meta.url, handlers = {},
+      dirname = url.slice(7, url.lastIndexOf('/'));
+      
+    /* Loading the handles... */
+    for (let file of readdirSync(resolve(dirname, 'handlers'))) {
+      if (!file.endsWith('.js')) continue;
+      let handler = (await import(`./handlers/${file}`)).default;
+      handlers[file.split('.')[0].toLowerCase()] = handler;
+    }
+    
+    return handlers;
+  }
+  
+  /**
+    * Function used to send information to a websocket client.
+    * @type {Function}
+    * 
+    * @example
+    * ```js
+    * client._send('ready', 'Welcome to the websocket server!');
+    * ```
+    * 
+    * @return {Boolean}
+    */
+  _send(op, data) {
+    return new Promise((res, rej) => {
+      this.send(JSON.stringify({ op, data }), null, (error) => {
+        if (error) return rej(error);
+        return res(true);
+      });
+    });
+  }
+}
+
+export default WebsocketManager;

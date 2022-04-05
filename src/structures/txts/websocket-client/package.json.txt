@@ -1,0 +1,34 @@
+{
+  "name": "{{projectName}}",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "engines": { "node": "17.x" },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarnings --experimental-json-modules .",
+    "dev": "nodemon --no-warnings=ExperimentalWarnings --experimental-json-modules ."
+  },
+  "keywords": [],
+  "author": "Bucky.br <bucky.developer@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "latest",
+    "bcryptjs": "latest",
+    "sequelize": "latest",
+    "dotenv": "latest",
+    "mysql2": "latest",
+    "cors": "latest",
+    "axios": "latest",
+    "bucky.js": "latest",
+    "express-rate-limit": "latest",
+    "morgan": "latest",
+    "helmet": "latest",
+    "i18n": "latest",
+    "ws": "latest"
+  },
+  "optionalDependencies": {
+    "bufferutil": "latest",
+    "utf-8-validate": "latest"
+  }
+}

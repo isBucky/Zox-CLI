@@ -1,0 +1,152 @@
+'use strict';
+
+import WebsocketManager from './websocket/Websocket.js';
+import rateLimit from 'express-rate-limit';
+import express from 'express';
+
+import { createServer } from 'node:http';
+import Websocket = from 'ws';
+import helmet from 'helmet';
+import logger from 'morgan';
+import cors from 'cors';
+
+/**
+ * Class responsible for managing the server.
+ * @class Server
+ */
+class Server {
+  /**
+   * @param {Object} [db] MySQL database using sequelize.
+   */
+  constructor(db) {
+    /**
+     * Variable containing information about the express server.
+     * @type {Object}
+     */
+    this.app = express();
+    /**
+     * This variable contains the information whether the websocket is connected or not.
+     * @type {Boolean}
+     */
+    this.websocketConnected = false;
+    /**
+     * Variable containing information about the http server.
+     * @type {Object}
+     */
+    this.server = createServer(this.app);
+    /**
+     * Port on which the server will be launched.
+     * @type {Number}
+     */
+    this.port = process.env.PORT ?? 3e3;
+    /**
+     * A simple cache to store some temporary information.
+     * @type {Object<Map>}
+     */
+    this.cache = new Map();
+    /**
+     * Variable containing the websocket server settings.
+     * @type {Object}
+      */
+    this.websocket = null;
+    
+    Object.defineProperties(this, {
+      _retryTimeout: { value: null, writable: true },
+      _retries: { value: 0, writable: true },
+      _retryDelay: { value: 3e4 },
+      _retryAmount: { value: 10 }
+    });
+    
+    this.app
+      /* Loading the middlewares to configure our server. */
+      .use(logger('common')).use(express.json())
+      .use(express.urlencoded({ extended: true }))
+      .use(cors()).use(helmet())
+      .use(this.sqlInjection())
+      
+      /* Setting the request rate on the server. */
+      .use(rateLimit({
+        windowMs: 1e3 * 60 * 15, // 15 minutes
+        standardHeaders: true,
+        legacyHeaders: false,
+        max: 50
+      }))
+      
+      /* Here is where the routes will be configured. */
+      .get('/', (req, res) => res.status(200).end());
+  }
+  
+  /**
+   * This is a function to configure server middleware.
+   * It will basically handle the current URL, and check if it contains invalid characters.
+   */
+  sqlInjection() {
+    // List of invalid characters:
+    let isSqlInjection = (str) => !!([
+        new RegExp('w*((%27)|(\'))((%6F)|o|(%4F))((%72)|r|(%52))', 'i'),
+        new RegExp('((%3D)|(=))[^\n]*((%27)|(\')|(--)|(%3B)|(;))', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%23)|(#)', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%22)|(\")', 'i'),
+        new RegExp('(%27)|(\')|(--)|(%60)|(\`)', 'i'),
+        new RegExp('((%27)|(\'))union', 'i')
+      ].map(i => i.test(str)).filter(Boolean).length);
+      
+    // Middleware configuration function:
+    return ((req, res, next) => {
+      if (isSqlInjection(req.url)) return res.status(403).end();
+      return next();
+    });
+  }
+  
+  /**
+   * This function is responsible for making the websocket connection.
+   * @return {WebsocketManager}
+   */
+  connectWebsocket() {
+    let url = process.env.WEBSOCKET_ENDPOINT
+      .replace(new RegExp('https'), 'wss')
+      .replace(new RegExp('http'), 'ws')
+      
+    return this.websocket = new WebsocketManager(url, {
+      origin: process.env.WEBSOCKET_ENDPOINT,
+      headers: {}
+    })
+      
+      .on('open', () => {
+        if (this._retryTimeout) clearTimeout(this._retryTimeout);
+        this._retries = 0; this.websocketConnected = true;
+        this._retryTimeout = null;
+      })
+      
+      .on('close', (code, reason) => {
+        if (this.websocket.readyState !== Websocket.CLOSE) this.websocket.close();
+        if (code == 1e3 || code == 1006) return process.exit(1);
+        return (async() => {
+          this.websocket?.removeAllListeners();
+          this.websocketConnected = false;
+          this.websocket = null;
+          
+          if (this._retries == this._retryAmount) return;
+          if (this._retries < this._retryAmount) {
+            this._retries++;
+            return this._retryTimeout = setTimeout(
+              () => this.connectWebsocket(), this._retryDelay
+            );
+          }
+        }).bind(this)();
+      });
+  }
+  
+  /**
+   * Function to start the web server.
+   * @return {Undefined}
+   */
+  start() {
+    return this.server.listen(this.port, () => {
+      this.websocket = this.connectWebsocket();
+      console.log('Server is listening on port:', this.port)
+    });
+  }
+}
+
+export default Server;
