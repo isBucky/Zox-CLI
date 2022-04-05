@@ -5,9 +5,9 @@ import rateLimit from 'express-rate-limit';
 import express from 'express';
 
 import { createServer } from 'node:http';
-import Websocket = from 'ws';
 import helmet from 'helmet';
 import logger from 'morgan';
+import Websocket from 'ws';
 import cors from 'cors';
 
 /**
