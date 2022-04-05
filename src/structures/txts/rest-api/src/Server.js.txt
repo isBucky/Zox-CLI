@@ -1,6 +1,6 @@
 'use strict';
 
-import WebsocketManager from './WebsocketManager.js';
+import WebsocketManager from './Websocket.js';
 import rateLimit from 'express-rate-limit';
 import express from 'express';
 
