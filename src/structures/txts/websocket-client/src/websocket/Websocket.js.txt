@@ -9,7 +9,7 @@ import Websocket from 'ws';
  * @class WebsocketManager
  * @extends {WebSocket}
  */
-class WebsocketManager extends WebSocket {
+class WebsocketManager extends Websocket {
   /**
    * @param {Object} [server] Reserved parameter for the http server.
    */
