@@ -2,11 +2,12 @@
 
 const shell = require('shelljs');
 
-let [branch, message] = process.argv.slice(2), date = new Date(),
-  dateCommit = `${date.getFullYear()}/${String(date.getMonth()).padStart(2, '0')}/${String(date.getDay()).padStart(2, '0')}`;
+let [branch, ...message] = process.argv.slice(2), date = new Date(),
+  dateCommit = `${date.getUTCFullYear()}/${String(date.getUTCMonth()).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
   
+message = message.filter(Boolean).join(' ');
 if (!branch || !branch.length) branch = 'main';
-if (!message || !message.length) message = `New Commit at ${dateCommit}`;
+if (!message.length) message = `New Commit at ${dateCommit}`;
 
 shell.exec([
   'git add --all',
