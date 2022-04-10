@@ -1,5 +1,5 @@
 {
-  "name": "Builder-CLI",
+  "name": "Create-CLI",
   "version": "1.0.0",
   "description": "A command line (CLI) to facilitate the creation of projects (private).",
   "main": "index.mjs",
