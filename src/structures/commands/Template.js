@@ -12,8 +12,8 @@ const inquirer = require('inquirer'),
 const Command = require('../Command.js');
 
 class Template extends Command {
-  constructor(program) {
-    super(program, __filename);
+  constructor(program, file) {
+    super(program, file);
   }
   
   run(command) {

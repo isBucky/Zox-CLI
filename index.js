@@ -24,7 +24,9 @@ class BuilderProgram extends Command {
       .forEach(async(file, i, arr) => {
         try {
           let CommandLine = require(resolve(__dirname, 'src', 'structures', 'commands', file));
-          CommandLine = new CommandLine(this);
+          CommandLine = new CommandLine(this, file);
+          
+          console.log(CommandLine);
           return CommandLine.run(this.command(CommandLine.name));
         }
         catch(_) { console.log(_) }
