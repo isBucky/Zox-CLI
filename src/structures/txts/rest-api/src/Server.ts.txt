@@ -2,45 +2,53 @@
 
 import WebsocketManager from './websocket/Websocket.js';
 import rateLimit from 'express-rate-limit';
-import express from 'express';
+import express, { Request, Response } from 'express';
 
 import { createServer } from 'node:http';
 import helmet from 'helmet';
 import logger from 'morgan';
 import cors from 'cors';
 
+import { Sequelize } from 'sequelize';
+
 /**
  * Class responsible for managing the server.
  * @class Server
  */
 class Server {
+  public app: object;
+  public server: object;
+  public websocket: WebsocketManager;
+  public port: number;
+  public cache: Map;
+  
   /**
-   * @param {Object} [db] MySQL database using sequelize.
+   * @param {Sequelize} [db] MySQL database using sequelize.
    */
-  constructor(db) {
+  constructor(db: Sequelize) {
     /**
      * Variable containing information about the express server.
-     * @type {Object}
+     * @type {object}
      */
     this.app = express();
     /**
      * Variable containing information about the http server.
-     * @type {Object}
+     * @type {object}
      */
     this.server = createServer(this.app);
     /**
      * Variable containing the websocket server settings.
-     * @type {Object}
+     * @type {object}
       */
     this.websocket = new WebsocketManager(this.server);
     /**
      * Port on which the server will be launched.
-     * @type {Number}
+     * @type {number}
      */
     this.port = process.env.PORT ?? 3e3;
     /**
      * A simple cache to store some temporary information.
-     * @type {Object<Map>}
+     * @type {Map}
      */
     this.cache = new Map();
     
@@ -67,9 +75,9 @@ class Server {
    * This is a function to configure server middleware.
    * It will basically handle the current URL, and check if it contains invalid characters.
    */
-  sqlInjection() {
+  public sqlInjection(): function {
     // List of invalid characters:
-    let isSqlInjection = (str) => !!([
+    let isSqlInjection: boolean = (str) => !!([
         new RegExp('w*((%27)|(\'))((%6F)|o|(%4F))((%72)|r|(%52))', 'i'),
         new RegExp('((%3D)|(=))[^\n]*((%27)|(\')|(--)|(%3B)|(;))', 'i'),
         new RegExp('(%27)|(\')|(--)|(%23)|(#)', 'i'),
@@ -79,7 +87,7 @@ class Server {
       ].map(i => i.test(str)).filter(Boolean).length);
       
     // Middleware configuration function:
-    return ((req, res, next) => {
+    return ((req: Request, res: Response, next: function): any => {
       if (isSqlInjection(req.url)) return res.status(403).end();
       return next();
     });
@@ -87,9 +95,9 @@ class Server {
   
   /**
    * Function to start the web server.
-   * @return {Undefined}
+   * @returns {void}
    */
-  start() {
+  public start(): void {
     return this.server.listen(this.port, () =>
       console.log('Server is listening on port:', this.port));
   }

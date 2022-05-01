@@ -3,12 +3,9 @@
 import { resolve } from 'node:path';
 import { I18n } from 'i18n';
 
-const url = import.meta.url,
-  dirname = url.slice(7, url.lastIndexOf('/'));
-  
 // Configuring i18n for the project to support other languages.
 export default new I18n({
-  directory: resolve(dirname, 'languages'),
+  directory: resolve(__dirname, 'languages'),
   locales: ['pt-br', 'en-us'],
   mustacheConfig: {
     tags: ['{{', '}}'],

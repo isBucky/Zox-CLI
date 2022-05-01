@@ -1,28 +1,28 @@
 'use strict';
 
-const { writeFile, readFile } = require('node:fs'),
-  { mkdir } = require('node:fs/promises'),
-  { resolve } = require('node:path');
-  
-const inquirer = require('inquirer'),
-  { sleep } = require('bucky.js'),
-  shell = require('shelljs'),
-  chalk = require('chalk');
-  
-const Command = require('../Command.js');
+import { writeFile, readFile } from 'node:fs';
+import { mkdir }  from 'node:fs/promises';
+import { resolve }  from 'node:path';
+
+import inquirer from 'inquirer';
+import { sleep } from 'bucky.js';
+import shell from 'shelljs';
+import chalk from 'chalk';
+
+import Command from '../Command';
 
 class Template extends Command {
-  constructor(program, file) {
+  constructor(program: object, file: string) {
     super(program, file);
   }
   
-  run(command) {
+  public run(command): void {
     command
       .description('Use to create an automatic template.')
-      .action((...args) => this.action(...args));
+      .action(this.action);
   }
   
-  async action(name, _, command) {
+  public async action(): Promise<void> {
     let answers = await inquirer.prompt([{
       name: 'templateName', type: 'rawlist',
       message: 'Which template do you want to use?',
@@ -45,7 +45,7 @@ class Template extends Command {
     }]);
     
     let projectName = !answers.currentFolder ? answers.projectName : null;
-    this.log(chalk.bold('\nLoading template...'));
+    console.log(chalk.bold('\nLoading template...'));
     switch(answers.templateName) {
       case 'react-app': break;
       
@@ -68,12 +68,12 @@ class Template extends Command {
         ]);
         await sleep(100);
         await this.createFiles(projectName, answers, [
-          'index.js', 'package.json', '.gitignore', 'LICENSE',
-          'Procfile', '.env', 'src/Server.js',
+          'index.ts', 'package.json', '.gitignore', 'LICENSE',
+          'Procfile', '.env', 'src/Server.ts',
           
-          'src/websocket/Websocket.js', 'src/structures/Database.js',
-          'src/structures/I18n.js', 'src/structures/languages/pt-br.json',
-          'src/structures/languages/en-us.json', 'src/models/Model.js'
+          'src/websocket/Websocket.ts', 'src/structures/Database.ts',
+          'src/structures/I18n.ts', 'src/structures/languages/pt-br.json',
+          'src/structures/languages/en-us.json', 'src/models/Model.ts'
         ]);
         break;
         
@@ -85,12 +85,12 @@ class Template extends Command {
         ]);
         await sleep(100);
         await this.createFiles(projectName, answers, [
-          'index.js', 'package.json', '.gitignore', 'LICENSE',
-          'Procfile', '.env', 'src/Server.js',
+          'index.ts', 'package.json', '.gitignore', 'LICENSE',
+          'Procfile', '.env', 'src/Server.ts',
           
-          'src/websocket/Websocket.js', 'src/structures/Database.js',
-          'src/structures/I18n.js', 'src/structures/languages/pt-br.json',
-          'src/structures/languages/en-us.json', 'src/models/Model.js'
+          'src/websocket/Websocket.ts', 'src/structures/Database.ts',
+          'src/structures/I18n.ts', 'src/structures/languages/pt-br.json',
+          'src/structures/languages/en-us.json', 'src/models/Model.ts'
         ]);
         break;
         
@@ -98,7 +98,7 @@ class Template extends Command {
         await this.createDirectories(projectName, [resolve(process.cwd(), projectName)]);
         await sleep(100);
         await this.createFiles(projectName, answers, [
-          'index.js', '.gitignore', '.npmignore',
+          'index.ts', '.gitignore', '.npmignore',
           'README.md', 'package.json', 'LICENSE'
         ]);
         break;
@@ -107,30 +107,37 @@ class Template extends Command {
     }
   }
   
-  createDirectories(projectName, dirs) {
+  public createDirectories(projectName: string, dirs: string[]): Promise<boolean> {
     let resolveDirectory = (...args) => resolve(process.cwd(), !projectName ? '' : projectName, ...args),
       resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName
       
-    this.log(chalk.bold('Creating directories:'));
+    console.log(chalk.bold('Creating directories:'));
     return new Promise(async(res, rej) => {
       for (let i = 0; i < dirs.length; i++) {
         try {
           await mkdir(resolveDirectory(dirs[i]), { recursive: true });
-          this.log(chalk.bold(' ╰Directory created successfully:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
+          console.log(chalk.bold(' ╰Directory created successfully:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
         } catch(err) {
-          this.log(chalk.red(' ╰Could not create directory:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
+          console.log(chalk.red(' ╰Could not create directory:') + chalk.gray(` /${resolvedProjectName}/${dirs[i]}`));
         } finally {
-          if ((i + 1) == dirs.length) return this.log(chalk.bold(' ╰All directorys created successfully!')) && res(true);
+          if ((i + 1) == dirs.length) {
+            console.log(chalk.bold(' ╰All directorys created successfully!'));
+            return res(true);
+          }
         }
       }
     });
   }
   
-  createFiles(projectName, { templateName, installPackages, currentFolder }, files) {
+  public createFiles(
+    projectName: string,
+    { templateName, installPackages, currentFolder }: AnswersOptions,
+    files: string[]
+  ): Promise<boolean> {
     let resolveDirectory = (...args) => resolve(process.cwd(), projectName ?? '', ...args),
       resolvedProjectName = !projectName ? process.cwd().split('/').at(-1) : projectName;
       
-    this.log(chalk.bold('\nCreating the files:'));
+    console.log(chalk.bold('\nCreating the files:'));
     return new Promise((res, rej) => {
       for (let i =0; i < files.length; i++) {
         let fileName = files[i].split('/').at(-1),
@@ -140,39 +147,42 @@ class Template extends Command {
               
         readFile(resolve(__dirname, '..', 'txts', templateName, filePath, `${fileName}.txt`), 'utf8',
           (err, data) => {
-            if (err) return this.log(err);
+            if (err) return console.log(err);
             data = data.replace(new RegExp(`{{projectName}}`, 'gi'), resolvedProjectName)
               .replace(new RegExp(`{{projectNameLowerCase}}`, 'gi'), resolvedProjectName.toLowerCase())
-              .replace(new RegExp(`{{date}}`, 'gi'), (new Date()).getFullYear());
+              .replace(new RegExp(`{{date}}`, 'gi'), String ((new Date()).getFullYear()));
               
             writeFile(resolveDirectory(files[i]), data, async(err) => {
-              if (err) this.log(chalk.red(' ╰Could not create file:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
-              else this.log(chalk.bold(' ╰File created successfully:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
+              if (err) console.log(chalk.red(' ╰Could not create file:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
+              else console.log(chalk.bold(' ╰File created successfully:') + chalk.gray(` /${resolvedProjectName}/${files[i]}`));
               
               if ((i + 1) == files.length) {
-                this.log(chalk.bold(' ╰All files created successfully!'));
+                console.log(chalk.bold(' ╰All files created successfully!'));
                 await sleep(100);
                 
                 if (installPackages) {
-                  this.log(chalk.bold('\nInstalling packages...'));
+                  console.log(chalk.bold('\nInstalling packages...'));
                   let cmdShell = projectName ? `cd ${projectName} && yarn` : `yarn`,
                     { stdout, stderr } = await shell.exec(cmdShell, { silent: true });
                     
-                  if (stderr.length) this.log(chalk.red(' -'), chalk.bold('There was an error installing the packages:'), chalk.red(stderr.trim()));
-                  this.log(chalk.green('\n +'), chalk.bold('Packages installed successfully!'));
+                  if (stderr.length) console.log(chalk.red(' -'), chalk.bold('There was an error installing the packages:'), chalk.red(stderr.trim()));
+                  console.log(chalk.green('\n +'), chalk.bold('Packages installed successfully!'));
                 }
                 
-                return this.log(chalk.bold('\nConcluded!')) && res(true);
+                console.log(chalk.bold('\nConcluded!'));
+                return res(true);
               }
             });
           });
       }
     });
   }
-  
-  log(...args) {
-    return process.stdout.write(args.join(' ') + '\n');
-  }
 }
 
-module.exports = Template;
+export interface AnswersOptions {
+  templateName: string;
+  installPackages: boolean;
+  currentFolder: boolean;
+}
+
+export default Template;

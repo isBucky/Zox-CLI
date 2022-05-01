@@ -2,14 +2,16 @@
   "name": "Create-CLI",
   "version": "1.0.0",
   "description": "A command line (CLI) to facilitate the creation of projects (private).",
-  "main": "index.mjs",
-  "scripts": {},
+  "main": "/dist/index.js",
+  "scripts": {
+    "build": "tsc && yarn && npm i -g"
+  },
   "keywords": [],
   "author": "Bucky.br <bucky.developer@gmail.com>",
   "license": "Apache-2.0",
   "bin": {
-    "create": "/index.js",
-    "commit": "/src/Commit.js"
+    "create": "/dist/index.js",
+    "commit": "/dist/src/Commit.js"
   },
   "dependencies": {
     "shelljs": "latest",
@@ -19,5 +21,10 @@
     "cli-table": "latest",
     "chalk": "^4.1.2",
     "bucky.js": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@types/node": "latest",
+    "@types/shelljs": "latest"
   }
 }

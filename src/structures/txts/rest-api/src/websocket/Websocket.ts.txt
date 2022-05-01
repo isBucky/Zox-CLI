@@ -10,44 +10,47 @@ import { resolve } from 'node:path';
  * @extends {WebSocketServer}
  */
 class WebsocketManager extends WebSocketServer {
+  public intervalPing: object;
+  public handlers: object;
+  
   /**
-   * @param {Object} [server] Reserved parameter for the http server.
+   * @param {object} [server] Reserved parameter for the http server.
    */
-  constructor(server) {
+  constructor(server: object) {
     super({ server });
     
     /**
-     * @type {Object}
+     * @type {object}
      */
     this.intervalPing = this.startIntervalPing();
     /**
      * Variable containing all the handlers of requests made via websocket.
-     * @type {Object}
+     * @type {object}
      */
-    this.handlers = this.resolveHandlers();
+    this.handlers = this.#resolveHandlers();
     
     /* Event fired after websocket server starts. */
     this.on('connection', (client, req) => {
       /**
        * Variable containing the information whether the client is connected or not.
-       * @type {Boolean}
+       * @type {boolean}
        */
       client.isAlive = true;
       /* Loading client events. */
       client
         .on('pong', () => (client.isAlive = true))
-        .on('message', this.message.bind(this));
+        .on('message', this.#message);
         
       /**
        * Function used to send information to a websocket client.
-       * @type {Function}
+       * 
+       * @type {function}
+       * @returns {boolean}
        * 
        * @example
        * ```js
        * client._send('ready', 'Welcome to the websocket server!');
        * ```
-       * 
-       * @return {Boolean}
        */
       Object.defineProperty(client, '_send', {
         value: function Send(op, data) {
@@ -65,12 +68,13 @@ class WebsocketManager extends WebSocketServer {
   /**
    * Function whose functionality is to manage all messages received via websocket.
    * 
-   * @param {Object} [message] Message received via websocket.
-   * @param {Boolean} [isBinary] Value identifying whether the value is binary or not.
+   * @param {object} [message] Message received via websocket.
+   * @param {boolean} [isBinary] Value identifying whether the value is binary or not.
    * 
-   * @return {Undefined}
+   * @private
+   * @returns {void}
    */
-  message(message, isBinary) {
+  private #message(message: any, isBinary: boolean): void {
     if (Array.isArray(message)) message = Buffer.concat(message);
     else if (message instanceof ArrayBuffer) message = Buffer.from(message);
     
@@ -81,14 +85,12 @@ class WebsocketManager extends WebSocketServer {
   
   /**
    * This function is the part of loading all the handlers of requests made via websocket.
-   * @return {Object}
+   * @private
+   * @returns {object}
    */
-  async resolveHandlers() {
-    let url = import.meta.url, handlers = {},
-      dirname = url.slice(7, url.lastIndexOf('/'));
-      
-    /* Loading the handles... */
-    for (let file of readdirSync(resolve(dirname, 'handlers'))) {
+  private async #resolveHandlers(): object {
+    let handlers = {};
+    for (let file of readdirSync(resolve(__dirname, 'handlers'))) {
       if (!file.endsWith('.js')) continue;
       let handler = (await import(`./handlers/${file}`)).default;
       handlers[file.split('.')[0].toLowerCase()] = handler;
@@ -99,9 +101,9 @@ class WebsocketManager extends WebSocketServer {
   
   /**
    * This function does the part of pinging websocket clients.
-   * @return {Object}
+   * @return {object}
    */
-  startIntervalPing() {
+  public startIntervalPing(): object {
     return setInterval(() =>
       this.clients.forEach(client => {
         if (!client.isAlive) return client.terminate();

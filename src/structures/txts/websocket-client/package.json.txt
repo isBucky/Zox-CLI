@@ -2,9 +2,9 @@
   "name": "{{projectName}}",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
-  "engines": { "node": "17.x" },
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": ["src", "dist"],
   "scripts": {
     "start": "node --no-warnings=ExperimentalWarnings --experimental-json-modules .",
     "dev": "nodemon --no-warnings=ExperimentalWarnings --experimental-json-modules ."
@@ -26,6 +26,10 @@
     "helmet": "latest",
     "i18n": "latest",
     "ws": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.3",
+    "@types/node": "^17.0.25"
   },
   "optionalDependencies": {
     "bufferutil": "latest",

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    
+    "target": "ES2018",
+    "module": "CommonJs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    
+    "outDir": "./dist",
+    "rootDir": "./",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules", "dist"]
+}

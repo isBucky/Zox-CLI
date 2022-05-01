@@ -2,11 +2,11 @@
 
 'use strict';
 
-const _package = require('./package.json'),
-  { readdirSync } = require('node:fs'),
-  { resolve } = require('node:path'),
-  { Command } = require('commander');
-  
+import _package from './package.json';
+import { readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { Command } from 'commander';
+
 class BuilderProgram extends Command {
   constructor() {
     super();
@@ -18,20 +18,18 @@ class BuilderProgram extends Command {
     this.loadCommands();
   }
   
-  loadCommands() {
+  public loadCommands(): void {
     readdirSync(resolve(__dirname, 'src', 'structures', 'commands'))
       .filter(i => i.endsWith('.js'))
       .forEach(async(file, i, arr) => {
         try {
           let CommandLine = require(resolve(__dirname, 'src', 'structures', 'commands', file));
-          CommandLine = new CommandLine(this, file);
-          
-          console.log(CommandLine);
+            CommandLine = new CommandLine(this, file);
           return CommandLine.run(this.command(CommandLine.name));
         }
         catch(_) { console.log(_) }
         finally {
-          if ((i + 1) == arr.length) return this.parse(process.argv);
+          if ((i + 1) == arr.length) await this.parseAsync(process.argv);
         }
       });
   }
