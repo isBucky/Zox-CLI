@@ -19,7 +19,7 @@ class Template extends Command {
   public run(command): void {
     command
       .description('Use to create an automatic template.')
-      .action(this.action);
+      .action(() => this.action());
   }
   
   public async action(): Promise<void> {
