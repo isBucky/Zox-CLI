@@ -23,7 +23,7 @@ class BuilderProgram extends Command {
       .filter(i => i.endsWith('.js'))
       .forEach(async(file, i, arr) => {
         try {
-          let CommandLine = (awair import(resolve(__dirname, 'src', 'structures', 'commands', file))).default;
+          let CommandLine = (await import(resolve(__dirname, 'src', 'structures', 'commands', file))).default;
             CommandLine = new CommandLine(this, file);
           return CommandLine.run(this.command(CommandLine.name));
         }
