@@ -69,7 +69,7 @@ class Template extends Command {
         await sleep(100);
         await this.createFiles(projectName, answers, [
           'index.ts', 'package.json', '.gitignore', 'LICENSE',
-          'Procfile', '.env', 'src/Server.ts',
+          'Procfile', '.env', 'tsconfig.json', 'src/Server.ts',
           
           'src/websocket/Websocket.ts', 'src/structures/Database.ts',
           'src/structures/I18n.ts', 'src/structures/languages/pt-br.json',
@@ -86,7 +86,7 @@ class Template extends Command {
         await sleep(100);
         await this.createFiles(projectName, answers, [
           'index.ts', 'package.json', '.gitignore', 'LICENSE',
-          'Procfile', '.env', 'src/Server.ts',
+          'Procfile', 'tsconfig.json', '.env', 'src/Server.ts',
           
           'src/websocket/Websocket.ts', 'src/structures/Database.ts',
           'src/structures/I18n.ts', 'src/structures/languages/pt-br.json',
@@ -99,7 +99,8 @@ class Template extends Command {
         await sleep(100);
         await this.createFiles(projectName, answers, [
           'index.ts', '.gitignore', '.npmignore',
-          'README.md', 'package.json', 'LICENSE'
+          'README.md', 'package.json', 'LICENSE',
+          'tsconfig.json'
         ]);
         break;
         
