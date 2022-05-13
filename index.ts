@@ -18,20 +18,21 @@ class BuilderProgram extends Command {
     this.loadCommands();
   }
   
-  public loadCommands(): void {
-    readdirSync(resolve(__dirname, 'src', 'structures', 'commands'))
-      .filter(i => i.endsWith('.js'))
-      .forEach(async(file, i, arr) => {
-        try {
-          let CommandLine = (await import(resolve(__dirname, 'src', 'structures', 'commands', file))).default;
-            CommandLine = new CommandLine(this, file);
-          return CommandLine.run(this.command(CommandLine.name));
-        }
-        catch(_) { console.log(_) }
-        finally {
-          if ((i + 1) == arr.length) await this.parseAsync(process.argv);
-        }
-      });
+  public async loadCommands(): Promise<void> {
+    let files = readdirSync(resolve(__dirname, 'src', 'structures', 'commands'))
+      .filter(i => i.endsWith('.js'));
+      
+    for (let [index, file] of files.entries()) {
+      try {
+        let Command = require(`./src/structures/commands/${file}`).default;
+          Command = new Command(this, file);
+        Command.run(this.command(Command.name));
+      }
+      catch(_) {}
+      finally {
+        if ((Number(index) + 1) == files.length) await this.parseAsync(process.argv);
+      }
+    }
   }
 }
 
