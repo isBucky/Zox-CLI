@@ -1,30 +1,49 @@
 {
-  "name": "Create-CLI",
-  "version": "1.0.0",
+  "name": "zox",
+  "version": "2.0.0",
   "description": "A command line (CLI) to facilitate the creation of projects (private).",
-  "main": "/index.js",
+  "main": "index.js",
   "scripts": {
-    "build": "tsc && yarn && npm i -g"
+    "start": "node .",
+    "build:cli": "tsc && yarn && npm i -g",
+    "build": "tsc",
+    "build:start": "tsc && yarn start",
+    "dev": "tsx index.ts"
   },
   "keywords": [],
   "author": "Bucky.br <bucky.developer@gmail.com>",
   "license": "Apache-2.0",
   "bin": {
-    "create": "/index.js",
-    "commit": "/src/Commit.js"
+    "zox": "index.js"
   },
   "dependencies": {
-    "shelljs": "latest",
-    "commander": "latest",
-    "boxen": "latest",
-    "inquirer": "latest",
-    "cli-table": "latest",
-    "chalk": "^4.1.2",
-    "bucky.js": "latest"
+    "bucky.js": "^1.2.1",
+    "chalk": "4.1.2",
+    "commander": "^10.0.0",
+    "dotenv": "^16.0.3",
+    "glob": "^9.3.2",
+    "inquirer": "8.2.5",
+    "inquirer-fuzzy-path": "^2.3.0",
+    "octokit": "^2.0.14",
+    "shelljs": "^0.8.5"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "@types/node": "latest",
-    "@types/shelljs": "latest"
+    "@types/inquirer": "^9.0.3",
+    "@types/inquirer-fuzzy-path": "^2.3.6",
+    "@types/node": "^18.15.11",
+    "@types/shelljs": "^0.8.11",
+    "tsx": "^3.12.6",
+    "typescript": "^5.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isBucky/Create-CLI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isBucky/Create-CLI/issues"
+  },
+  "homepage": "https://github.com/isBucky/Create-CLI#readme",
+  "directories": {
+    "test": "test"
   }
 }

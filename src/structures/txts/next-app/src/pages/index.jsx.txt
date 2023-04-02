@@ -1,7 +1,0 @@
-import * as App from '@chakra-ui/react';
-
-export default function Home() {
-  return (
-    <App.Heading>Hello World</App.Heading>
-  )
-}
