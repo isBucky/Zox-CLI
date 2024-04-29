@@ -1,11 +1,11 @@
 {
   "name": "zox",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A command line (CLI) to facilitate the creation of projects (private).",
-  "main": "index.js",
+  "main": "./index.js",
   "scripts": {
     "start": "node .",
-    "build:cli": "tsc && yarn && npm i -g",
+    "build:cli": "pnpm i && tsc && npm link",
     "build": "tsc",
     "build:start": "tsc && yarn start",
     "dev": "tsx index.ts"
@@ -14,26 +14,36 @@
   "author": "Bucky.br <bucky.developer@gmail.com>",
   "license": "Apache-2.0",
   "bin": {
-    "zox": "index.js"
+    "zox": "./index.js"
   },
   "dependencies": {
     "bucky.js": "^1.2.1",
     "chalk": "4.1.2",
-    "commander": "^10.0.0",
-    "dotenv": "^16.0.3",
-    "glob": "^9.3.2",
+    "dotenv": "^16.4.5",
+    "glob": "^10.3.12",
     "inquirer": "8.2.5",
     "inquirer-fuzzy-path": "^2.3.0",
-    "octokit": "^2.0.14",
+    "octokit": "^2.1.0",
+    "open": "8.4.2",
+    "ora": "^5.4.1",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
-    "@types/inquirer": "^9.0.3",
-    "@types/inquirer-fuzzy-path": "^2.3.6",
-    "@types/node": "^18.15.11",
-    "@types/shelljs": "^0.8.11",
-    "tsx": "^3.12.6",
-    "typescript": "^5.0.3"
+    "@eslint/js": "^9.1.1",
+    "@types/inquirer": "^9.0.7",
+    "@types/inquirer-fuzzy-path": "^2.3.9",
+    "@types/node": "^18.19.31",
+    "@types/shelljs": "^0.8.15",
+    "eslint": "^9.1.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-security": "^3.0.0",
+    "globals": "^15.1.0",
+    "prettier": "^3.2.5",
+    "tsx": "^3.14.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.7.1"
   },
   "repository": {
     "type": "git",
@@ -42,8 +52,5 @@
   "bugs": {
     "url": "https://github.com/isBucky/Create-CLI/issues"
   },
-  "homepage": "https://github.com/isBucky/Create-CLI#readme",
-  "directories": {
-    "test": "test"
-  }
+  "homepage": "https://github.com/isBucky/Create-CLI#readme"
 }

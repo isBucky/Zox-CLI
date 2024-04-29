@@ -1,0 +1,41 @@
+{
+    "folders": [
+        "./src",
+        "./src/server",
+        "./src/server/middlewares",
+        "./src/server/routes",
+        "./src/server/services"
+    ],
+    "packages": [
+        {
+            "name": "fastify"
+        },
+        {
+            "name": "@supercharge/request-ip"
+        },
+        {
+            "name": "@fastify/rate-limit"
+        },
+        {
+            "name": "@fastify/multipart"
+        },
+        {
+            "name": "@fastify/compress"
+        },
+        {
+            "name": "@fastify/helmet"
+        },
+        {
+            "name": "@fastify/middie"
+        },
+        {
+            "name": "@fastify/cookie"
+        },
+        {
+            "name": "@fastify/cors"
+        },
+        {
+            "name": "kenai"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "folders": [
+        "./prisma",
+        "./prisma/migrations",
+        "./prisma/schemas",
+        "./src/structures/databases",
+        "./scripts"
+    ],
+    "packages": [
+        {
+            "name": "@prisma/client"
+        },
+        {
+            "name": "prisma",
+            "dev": true
+        }
+    ]
+}

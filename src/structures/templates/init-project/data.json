@@ -1,0 +1,37 @@
+{
+    "folders": ["./src"],
+    "packages": [
+        {
+            "name": "typescript",
+            "dev": true
+        },
+        {
+            "name": "@types/node",
+            "dev": true
+        },
+        {
+            "name": "eslint-plugin-prettier",
+            "dev": true
+        },
+        {
+            "name": "eslint-plugin-security",
+            "dev": true
+        },
+        {
+            "name": "eslint-plugin-promise",
+            "dev": true
+        },
+        {
+            "name": "typescript-eslint",
+            "dev": true
+        },
+        {
+            "name": "@eslint/js",
+            "dev": true
+        },
+        {
+            "name": "globals",
+            "dev": true
+        }
+    ]
+}
