@@ -41,7 +41,7 @@ export default class Client {
                 type: 'checkbox',
                 name: 'resource',
                 message: 'Quais recursos adicionais você deseja adicionar ?',
-                choices: (<any>Object.keys(Resources)) as ResourcesAvailable,
+                choices: Object.keys(Resources) as ResourcesAvailable,
             },
         };
 

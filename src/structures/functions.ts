@@ -1,5 +1,3 @@
-import { createFolders } from './constructors/';
-
 import { isFile, isDirectory } from 'bucky.js';
 import shell from 'shelljs';
 

@@ -12,7 +12,7 @@ export default TsEslint.config(
     EsSecurity.configs.recommended,
 
     {
-        files: ['**/*.ts'],
+        files: ['*.ts'],
 
         ignores: ['*.js'],
 
