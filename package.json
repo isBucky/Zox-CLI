@@ -1,56 +1,56 @@
 {
-    "name": "zox",
-    "version": "3.0.0",
-    "description": "A command line (CLI) to facilitate the creation of projects (private).",
-    "main": "./index.js",
-    "scripts": {
-        "start": "node .",
-        "build:cli": "pnpm i && tsc && npm link",
-        "build": "tsc",
-        "build:start": "tsc && yarn start",
-        "dev": "tsx index.ts"
-    },
-    "keywords": [],
-    "author": "Bucky.br <bucky.developer@gmail.com>",
-    "license": "Apache-2.0",
-    "bin": {
-        "zox": "./index.js"
-    },
-    "dependencies": {
-        "bucky.js": "^1.2.1",
-        "chalk": "4.1.2",
-        "dotenv": "^16.4.5",
-        "glob": "^10.4.5",
-        "inquirer": "8.2.5",
-        "inquirer-fuzzy-path": "^2.3.0",
-        "octokit": "^2.1.0",
-        "open": "8.4.2",
-        "ora": "^5.4.1",
-        "shelljs": "^0.8.5"
-    },
-    "devDependencies": {
-        "@eslint/js": "^9.10.0",
-        "@types/inquirer": "^9.0.7",
-        "@types/inquirer-fuzzy-path": "^2.3.9",
-        "@types/node": "^18.19.50",
-        "@types/shelljs": "^0.8.15",
-        "eslint": "^9.10.0",
-        "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-prettier": "^5.2.1",
-        "eslint-plugin-promise": "^6.6.0",
-        "eslint-plugin-security": "^3.0.1",
-        "globals": "^15.9.0",
-        "prettier": "^3.3.3",
-        "tsx": "^3.14.0",
-        "typescript": "^5.6.0-beta",
-        "typescript-eslint": "^7.18.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/isBucky/Create-CLI.git"
-    },
-    "bugs": {
-        "url": "https://github.com/isBucky/Create-CLI/issues"
-    },
-    "homepage": "https://github.com/isBucky/Create-CLI#readme"
+  "name": "zox",
+  "version": "3.0.0",
+  "description": "A command line (CLI) to facilitate the creation of projects (private).",
+  "main": "./index.js",
+  "scripts": {
+    "start": "node .",
+    "build:cli": "pnpm i && tsc && npm link",
+    "build": "tsc",
+    "build:start": "tsc && yarn start",
+    "dev": "tsx index.ts"
+  },
+  "keywords": [],
+  "author": "Bucky.br <bucky.developer@gmail.com>",
+  "license": "Apache-2.0",
+  "bin": {
+    "zox": "./index.js"
+  },
+  "dependencies": {
+    "bucky.js": "^1.2.1",
+    "chalk": "4.1.2",
+    "dotenv": "^16.4.5",
+    "glob": "^10.4.5",
+    "inquirer": "8.2.5",
+    "inquirer-fuzzy-path": "^2.3.0",
+    "octokit": "^2.1.0",
+    "open": "8.4.2",
+    "ora": "^5.4.1",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/inquirer-fuzzy-path": "^2.3.9",
+    "@types/node": "^18.19.50",
+    "@types/shelljs": "^0.8.15",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-security": "^3.0.1",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "tsx": "^3.14.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^7.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isBucky/Create-CLI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isBucky/Create-CLI/issues"
+  },
+  "homepage": "https://github.com/isBucky/Create-CLI#readme"
 }

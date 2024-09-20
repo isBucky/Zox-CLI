@@ -7,14 +7,12 @@ import globals from 'globals';
 
 export default TsEslint.config(
     ...TsEslint.configs.recommended,
+    EsSecurity.configs.recommended,
     pluginJs.configs.recommended,
     Prettier,
-    EsSecurity.configs.recommended,
 
     {
-        files: ['*.ts'],
-
-        ignores: ['*.js'],
+        files: ['*.ts', '**/*.ts'],
 
         plugins: {
             promise: EsPromise.configs.recommended,
@@ -39,7 +37,7 @@ export default TsEslint.config(
             '@typescript-eslint/no-unsafe-declaration-merging': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
 
-            'no-unused-vars': 'off',
+            'no-unused-vars': 'warn',
             'no-undef': 'off',
         },
     },
