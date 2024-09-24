@@ -1,4 +1,4 @@
-import { buildList } from './build-list';
+import { buildListInConsole } from '../functions';
 
 import ora from 'ora';
 
@@ -24,7 +24,7 @@ export async function createFolders(paths?: string[], log: boolean = true) {
         }
     }
 
-    if (spinner) spinner.succeed(buildList('Pastas criadas', paths));
+    if (spinner) spinner.succeed(buildListInConsole('Pastas criadas', paths));
 
     return;
 }

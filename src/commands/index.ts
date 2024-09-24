@@ -1,1 +1,2 @@
-export * from './project';
+export * from './init-project';
+export * from './resources';

@@ -1,11 +1,10 @@
 import { exec } from '../functions';
 
-import { sleep } from 'bucky.js';
 import ora from 'ora';
 
 // Types
 import type { Installers } from '../../program';
-import { buildList } from './build-list';
+import { buildListInConsole } from '../functions';
 
 /**
  * Use essa função para instalar os pacotes do template
@@ -15,28 +14,20 @@ import { buildList } from './build-list';
  */
 export async function installPackages(
     installer: Installers,
-    packagesOptions?: InstallPackagesOptions[],
+    { packages, devPackages }: InstallPackagesOptions,
     log: boolean = true,
 ) {
-    if (!packagesOptions || !packagesOptions.length) return;
-
-    const packages = packagesOptions.filter((pkg) => !pkg?.dev);
-    const devPackages = packagesOptions.filter((pkg) => pkg.dev);
+    if (!packages?.length && !devPackages?.length) return;
 
     // Instalando pacotes que não são de desenvolvimento
-    if (packages.length) {
+    if (packages?.length) {
         const spinner = log ? ora('Instalando pacotes').start() : null;
 
         try {
-            const packagesNames = packages.map((pkg) => pkg.name);
-
             // Instalando pacotes
-            await install({
-                installer,
-                packages: packagesNames,
-            });
+            await install({ installer, packages });
 
-            if (spinner) spinner.succeed(buildList('Pacotes instalados', packagesNames));
+            if (spinner) spinner.succeed(buildListInConsole('Pacotes instalados', packages));
         } catch (error) {
             if (spinner) spinner.fail('Erro ao instalar os pacotes');
             throw error;
@@ -44,21 +35,17 @@ export async function installPackages(
     }
 
     // Instalando pacotes para desenvolvimento
-    if (devPackages.length) {
+    if (devPackages?.length) {
         const spinner = log ? ora('Instalando pacotes de desenvolvimento').start() : null;
 
         try {
-            const packagesNames = devPackages.map((pkg) => pkg.name);
-
             // Instalando pacotes
-            await install({
-                installer,
-                packages: packagesNames,
-                dev: true,
-            });
+            await install({ installer, packages: devPackages, dev: true });
 
             if (spinner)
-                spinner.succeed(buildList('Pacotes de desenvolvimentos instados', packagesNames));
+                spinner.succeed(
+                    buildListInConsole('Pacotes de desenvolvimentos instados', devPackages),
+                );
         } catch (error) {
             if (spinner) spinner.fail('Erro ao instalar pacotes de desenvolvimento');
             throw error;
@@ -85,6 +72,6 @@ export interface InstallOptions {
 }
 
 export interface InstallPackagesOptions {
-    name: string;
-    dev?: boolean;
+    packages?: string[];
+    devPackages?: string[];
 }

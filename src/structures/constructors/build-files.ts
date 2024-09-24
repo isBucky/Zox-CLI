@@ -1,4 +1,4 @@
-import { buildList } from './build-list';
+import { buildListInConsole } from '../functions';
 import { copyFiles } from '../functions';
 
 import ora from 'ora';
@@ -22,7 +22,9 @@ export async function buildFiles(files: string[], log: boolean = true) {
         );
 
         const list = files.map((file) => file.split('/').at(-1)!.replace(/.txt/, ''));
-        if (spinner) spinner.succeed(buildList('Arquivos criados', list));
+        const listMessage = buildListInConsole('Arquivos criados', list);
+
+        if (spinner) spinner.succeed(listMessage);
     } catch (error) {
         if (spinner) spinner.fail('Erro ao construir');
         throw error;

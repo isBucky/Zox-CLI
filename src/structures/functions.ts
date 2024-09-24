@@ -1,5 +1,6 @@
 import { isFile, isDirectory } from 'bucky.js';
 import shell from 'shelljs';
+import chalk from 'chalk';
 
 import Fs from 'node:fs/promises';
 
@@ -24,6 +25,20 @@ export async function copyFiles(options: CopyOptions[]) {
 
         await Fs.copyFile(filePath, destination);
     }
+}
+
+/**
+ * Usa essa função para criar uma lista no console
+ *
+ * @param message Mensagem principal
+ * @param list Array contendo strings para listar
+ */
+export function buildListInConsole(message: string, list: string[]) {
+    return (
+        message +
+        `\n${chalk.cyanBright('  ╰---> ')}` +
+        list.map((msg) => chalk.gray(msg)).join('\n' + chalk.cyanBright('  ╰---> '))
+    );
 }
 
 export interface CopyOptions {

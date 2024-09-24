@@ -1,4 +1,4 @@
-import { buildTemplate } from '../structures/constructors/build-template';
+import { buildTemplate } from '../structures/constructors/template';
 import CommandBase from '../structures/command-base';
 
 import ora from 'ora';
@@ -8,7 +8,9 @@ import type { CommandOptionsToCreateAnswer } from '../program';
 
 export class InitProject extends CommandBase {
     constructor() {
-        super(['installer', 'resource']);
+        super({
+            answers: ['installer', 'resources'],
+        });
     }
 
     async run(options: CommandOptionsToCreateAnswer) {

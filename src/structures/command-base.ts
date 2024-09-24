@@ -1,6 +1,6 @@
 // Types
-import type { CommandOptionsToCreateAnswerNames } from '../program';
+import type { CommandOptionsToCreateAnswer } from '../program';
 
 export default abstract class CommandBase {
-    constructor(public options?: CommandOptionsToCreateAnswerNames) {}
+    constructor(public options?: CommandOptionsToCreateAnswer) {}
 }

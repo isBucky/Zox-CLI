@@ -14,7 +14,7 @@
   "author": "Bucky.br <bucky.developer@gmail.com>",
   "license": "Apache-2.0",
   "bin": {
-    "zox": "./index.js"
+    "zox": "index.js"
   },
   "dependencies": {
     "bucky.js": "^1.2.1",
