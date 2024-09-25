@@ -31,6 +31,7 @@ export const InitProject = {
                 '@eslint/js',
                 'globals',
                 'eslint',
+                'tsx',
             ],
         },
     },
