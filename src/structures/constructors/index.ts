@@ -1,3 +1,4 @@
+export * from './build-files';
 export * from './create-folders';
 export * from './install-dependencies';
-export * from './package';
+export * from './template/index';
