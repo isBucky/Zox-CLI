@@ -1,11 +1,12 @@
-import * as Resources from '../../resources';
+import * as Resources from '../resources';
 
 import NodePath from 'node:path';
 
 import { glob } from 'glob';
 
 // Types
-import type { ResourcesAvailable } from '../../../program';
+import type { ResourcesAvailable } from '../../program';
+import type { PackageOptions } from './package';
 
 /**
  * Use essa função carregar os recursos adicionais
@@ -13,7 +14,8 @@ import type { ResourcesAvailable } from '../../../program';
  * @param resources Recursos adicionais
  */
 export async function loadResources(resources: ResourcesAvailable) {
-    const [folders, files, packages, devPackages] = <string[][]>[[], [], [], []];
+    const [folders, files, dependencies, devDependencies] = <string[][]>[[], [], [], []];
+    let scripts = {};
 
     for (const resourceName of resources) {
         // eslint-disable-next-line security/detect-object-injection
@@ -25,21 +27,33 @@ export async function loadResources(resources: ResourcesAvailable) {
 
         files.push(...templateFiles);
         folders.push(...(resourceData.folders || []));
-        packages.push(...(resourceData.packages || []));
-        devPackages.push(...(resourceData.devPackages || []));
+        dependencies.push(...(resourceData.package?.dependencies || []));
+        devDependencies.push(...(resourceData.package?.devDependencies || []));
+
+        if (Object.keys(resourceData.package?.scripts || {}).length)
+            scripts = {
+                ...scripts,
+
+                ...resourceData.package!.scripts,
+            };
     }
 
     return {
         folders,
         files,
-        packages,
-        devPackages,
+        package: {
+            scripts,
+            dependencies,
+            devDependencies,
+        },
     } satisfies ResourcesResult;
 }
 
 export interface ResourcesResult {
     files: string[];
     folders: string[];
-    packages: string[];
-    devPackages: string[];
+    package: PackageOptions & {
+        dependencies: string[];
+        devDependencies: string[];
+    };
 }

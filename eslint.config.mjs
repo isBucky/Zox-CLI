@@ -37,7 +37,7 @@ export default TsEslint.config(
             '@typescript-eslint/no-unsafe-declaration-merging': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
 
-            'no-unused-vars': 'warn',
+            'no-unused-vars': 'off',
             'no-undef': 'off',
         },
     },

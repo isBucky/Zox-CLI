@@ -13,7 +13,15 @@ export const Prisma = {
             './src/structures/databases',
             './scripts',
         ],
-        packages: ['@prisma/client'],
-        devPackages: ['prisma'],
+        package: {
+            dependencies: ['@prisma/client'],
+            devDependencies: ['prisma'],
+            scripts: {
+                'prisma:migrate-dev': 'pnpm prisma:build-dev && prisma migrate dev',
+                'prisma:migrate-prod': 'pnpm prisma:build-prod && prisma migrate dev',
+                'prisma:build-dev': 'sh ./scripts/prisma-build.sh mysql DATABASE_URL_DEV',
+                'prisma:build-prod': 'sh ./scripts/prisma-build.sh mysql DATABASE_URL',
+            },
+        },
     },
 } as Template;

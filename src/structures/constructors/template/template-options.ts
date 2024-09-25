@@ -1,4 +1,4 @@
-import { loadResources, type ResourcesResult } from './resource';
+import { loadResources, type ResourcesResult } from '../resource';
 import * as Templates from '../../templates';
 
 import { removeArrayDuplicates } from 'bucky.js';
@@ -20,12 +20,14 @@ export async function buildTemplateOptions(options: BuildProjectOptions) {
     const templateFilesPath = NodePath.join(template.path, 'files');
     const templateFiles = await glob(templateFilesPath + '/**/*', { dot: true });
 
-    const [files, folders, packages, devPackages] = <string[][]>[
+    const [files, folders, dependencies, devDependencies] = <string[][]>[
         templateFiles,
         template.data.folders || [],
-        template.data.packages || [],
-        template.data.devPackages || [],
+        template.data.package?.dependencies || [],
+        template.data.package?.devDependencies || [],
     ];
+
+    let scripts = template.data.package?.scripts || {};
 
     // Procurando e resolvendo recursos adicionais
     if (options.resources?.length || template.data.resources?.length) {
@@ -39,15 +41,20 @@ export async function buildTemplateOptions(options: BuildProjectOptions) {
 
         files.push(...resourceData.files);
         folders.push(...resourceData.folders);
-        packages.push(...resourceData.packages);
-        devPackages.push(...resourceData.devPackages);
+        dependencies.push(...resourceData.package.dependencies);
+        devDependencies.push(...resourceData.package.devDependencies);
+
+        scripts = { ...scripts, ...resourceData.package.scripts };
     }
 
     return {
         folders: removeArrayDuplicates(folders).filter(Boolean),
         files: removeArrayDuplicates(files).filter(Boolean),
-        packages,
-        devPackages,
+        package: {
+            scripts,
+            dependencies,
+            devDependencies,
+        },
     } satisfies TemplateResult;
 }
 

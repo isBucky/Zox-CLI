@@ -1,10 +1,9 @@
-import { exec } from '../functions';
+import { exec, buildListInConsole } from '../functions';
 
 import ora from 'ora';
 
 // Types
 import type { Installers } from '../../program';
-import { buildListInConsole } from '../functions';
 
 /**
  * Use essa função para instalar os pacotes do template
@@ -14,20 +13,20 @@ import { buildListInConsole } from '../functions';
  */
 export async function installPackages(
     installer: Installers,
-    { packages, devPackages }: InstallPackagesOptions,
+    { dependencies, devDependencies }: InstallDependenciesOptions,
     log: boolean = true,
 ) {
-    if (!packages?.length && !devPackages?.length) return;
+    if (!dependencies?.length && !devDependencies?.length) return;
 
     // Instalando pacotes que não são de desenvolvimento
-    if (packages?.length) {
+    if (dependencies?.length) {
         const spinner = log ? ora('Instalando pacotes').start() : null;
 
         try {
             // Instalando pacotes
-            await install({ installer, packages });
+            await install({ installer, dependencies });
 
-            if (spinner) spinner.succeed(buildListInConsole('Pacotes instalados', packages));
+            if (spinner) spinner.succeed(buildListInConsole('Pacotes instalados', dependencies));
         } catch (error) {
             if (spinner) spinner.fail('Erro ao instalar os pacotes');
             throw error;
@@ -35,16 +34,16 @@ export async function installPackages(
     }
 
     // Instalando pacotes para desenvolvimento
-    if (devPackages?.length) {
+    if (devDependencies?.length) {
         const spinner = log ? ora('Instalando pacotes de desenvolvimento').start() : null;
 
         try {
             // Instalando pacotes
-            await install({ installer, packages: devPackages, dev: true });
+            await install({ installer, dependencies: devDependencies, dev: true });
 
             if (spinner)
                 spinner.succeed(
-                    buildListInConsole('Pacotes de desenvolvimentos instados', devPackages),
+                    buildListInConsole('Pacotes de desenvolvimentos instados', devDependencies),
                 );
         } catch (error) {
             if (spinner) spinner.fail('Erro ao instalar pacotes de desenvolvimento');
@@ -59,19 +58,19 @@ export async function installPackages(
 function install(options: InstallOptions) {
     // Exemplo: npm install ou yarn add
     const installerCommand = `${options.installer} ${options.installer == 'yarn' ? 'add' : 'install'}`;
-    const packages = options.packages.join(' ');
+    const dependencies = options.dependencies.join(' ');
     const isDev = options.dev ? '-D' : '';
 
-    return exec(['cd $(pwd)', `${installerCommand} ${isDev} ${packages}`].join(' && '), true);
+    return exec(['cd $(pwd)', `${installerCommand} ${isDev} ${dependencies}`].join(' && '), true);
 }
 
 export interface InstallOptions {
     installer: Installers;
-    packages: string[];
+    dependencies: string[];
     dev?: boolean;
 }
 
-export interface InstallPackagesOptions {
-    packages?: string[];
-    devPackages?: string[];
+export interface InstallDependenciesOptions {
+    dependencies?: string[];
+    devDependencies?: string[];
 }

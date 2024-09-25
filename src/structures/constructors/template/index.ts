@@ -1,9 +1,7 @@
-import { type InstallPackagesOptions, installPackages, createFolders, buildFiles } from '../';
+import { type InstallDependenciesOptions, installPackages, createFolders, buildFiles } from '../';
 import { buildTemplateOptions } from './template-options';
+import PackageJson, { PackageOptions } from '../package';
 import * as Templates from '../../templates';
-import { exec } from '../../functions';
-
-import ora from 'ora';
 
 // Types
 import type { Installers, ResourcesAvailable } from '../../../program';
@@ -14,34 +12,24 @@ import type { Installers, ResourcesAvailable } from '../../../program';
  * @param options Opções de configuração do construtor
  */
 export async function buildTemplate(options: BuildProjectOptions) {
-    const { folders, files, packages, devPackages } = await buildTemplateOptions(options);
+    const data = await buildTemplateOptions(options);
+    const packageJson = new PackageJson({ scripts: data.package.scripts });
 
     // Construindo package.json
-    await buildPackage();
+    await packageJson.build();
 
     // Criando pastas solicitadas
-    if (folders?.length) await createFolders(folders);
+    if (data.folders?.length) await createFolders(data.folders);
 
     // Copiando arquivos do template
-    if (files.length) await buildFiles(files);
+    if (data.files.length) await buildFiles(data.files);
 
     // Instalando pacotes
-    if (options.installer) await installPackages(options.installer, { packages, devPackages });
-}
-
-/**
- * Use essa função para criar o package.json
- */
-export async function buildPackage(log: boolean = true) {
-    const spinner = log ? ora('Criando package.json').start() : null;
-
-    try {
-        await exec(`cd ${process.cwd()} && npm init -y`, true);
-        if (spinner) spinner.succeed('Package.json criado');
-    } catch (error) {
-        if (spinner) spinner.fail('Erro ao construir');
-        throw error;
-    }
+    if (options.installer)
+        await installPackages(options.installer, {
+            dependencies: data.package.dependencies,
+            devDependencies: data.package.devDependencies,
+        });
 }
 
 export interface BuildProjectOptions {
@@ -52,7 +40,8 @@ export interface BuildProjectOptions {
 
 export interface Template {
     path: string;
-    data: InstallPackagesOptions & {
+    data: {
+        package?: InstallDependenciesOptions & PackageOptions;
         resources?: ResourcesAvailable[];
         folders?: string[];
     };
