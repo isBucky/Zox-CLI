@@ -2,7 +2,7 @@
     "name": "zox",
     "version": "3.0.0",
     "description": "A command line (CLI) to facilitate the creation of projects (private).",
-    "main": "./index.js",
+    "main": "./dist/index.js",
     "scripts": {
         "start": "node .",
         "build:cli": "pnpm i && tsc && npm link",
@@ -14,10 +14,11 @@
     "author": "Bucky.br <bucky.developer@gmail.com>",
     "license": "Apache-2.0",
     "bin": {
-        "zox": "index.js"
+        "zox": "./dist/index.js"
     },
     "dependencies": {
         "@suptreze/shared": "^1.4.0",
+        "axios": "^1.7.7",
         "bucky.js": "^1.2.1",
         "chalk": "4.1.2",
         "dotenv": "^16.4.5",

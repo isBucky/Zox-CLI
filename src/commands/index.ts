@@ -1,2 +1,2 @@
-export * from './init-project';
-export * from './resources';
+export * from './resource';
+export * from './template';

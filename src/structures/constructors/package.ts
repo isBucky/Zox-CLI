@@ -1,12 +1,12 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
-import { exec } from '../functions';
+import { buildListInConsole, exec } from '../functions';
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { omit } from '@suptreze/shared/functions';
 import ObjectManager from 'object.mn';
-import { isFile } from 'bucky.js';
+import { isFile, sleep } from 'bucky.js';
 import ora from 'ora';
 
 export default class PackageJson {
@@ -14,7 +14,7 @@ export default class PackageJson {
     private modifications: ObjectManager;
 
     constructor(options?: PackageOptions) {
-        this.packagePath = join(process.cwd(), 'package.json');
+        this.packagePath = join(global['currentLocal'], 'package.json');
         this.modifications = new ObjectManager({});
 
         if (Object.keys(options || {}).length) this.modifications.set('/', options);
@@ -39,7 +39,8 @@ export default class PackageJson {
         const packageJson = await this.packageJson();
 
         packageJson.update('/', {
-            ...omit(this.modifications.objectData, ['scripts']),
+            ...packageJson.objectData,
+            ...omit(this.modifications.objectData, ['scripts', 'devDependencies', 'dependencies']),
 
             scripts: {
                 ...this.modifications.get('scripts'),
@@ -62,14 +63,22 @@ export default class PackageJson {
      * Use essa função para construir o package.json do projeto
      */
     public async build() {
+        const sleepTime = 1500;
         const spinner = ora().start('Verificando integridade do package.json...');
 
+        await sleep(sleepTime);
         if (this.existsPackageJson && this.modifications.keys('/').length) {
-            spinner.info('Package.json já existe no projeto');
-            spinner.start('Adicionando recursos adicionais no package.json...');
+            spinner.start('Adicionando modificações no existente package.json...');
 
+            await sleep(sleepTime);
             await this.modifyPackage();
-            return spinner.succeed('Recursos adicionados');
+
+            return spinner.succeed(
+                buildListInConsole(
+                    'Modificações feitas no existente package.json',
+                    this.modifications.keys('/'),
+                ),
+            );
         }
 
         if (this.existsPackageJson)
@@ -77,16 +86,20 @@ export default class PackageJson {
 
         try {
             spinner.start('Criando um novo package.json...');
-            await exec(`cd ${process.cwd()} && npm init -y`, true);
+            await exec(`cd ${global['currentLocal']} && npm init -y`, true);
+            spinner.info('Package.json criado');
 
             if (this.modifications.keys('/').length) {
-                spinner.start('Adicionando recursos adicionais no package.json...');
-                await this.modifyPackage();
+                await sleep(sleepTime);
+                spinner.start('Fazendo modificações package.json...');
 
-                spinner.info('Recursos adicionados.');
-                return spinner.succeed('Package.json criado e alterado com êxito.');
-            } else {
-                return spinner.succeed('Package.json criado');
+                await this.modifyPackage();
+                return spinner.succeed(
+                    buildListInConsole(
+                        'Modificações feitas no package.json',
+                        this.modifications.keys('/'),
+                    ),
+                );
             }
         } catch (error) {
             spinner.fail('Erro ao construir o package.json');

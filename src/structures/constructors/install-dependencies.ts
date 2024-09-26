@@ -1,9 +1,8 @@
 import { exec, buildListInConsole } from '../functions';
 
+import { sleep } from 'bucky.js';
+import inquirer from 'inquirer';
 import ora from 'ora';
-
-// Types
-import type { Installers } from '../../program';
 
 /**
  * Use essa função para instalar os pacotes do template
@@ -11,45 +10,47 @@ import type { Installers } from '../../program';
  * @param installer Qual instalador deseja usar
  * @param packagesOptions Opções para instalar os pacotes
  */
-export async function installPackages(
-    installer: Installers,
-    { dependencies, devDependencies }: InstallDependenciesOptions,
-    log: boolean = true,
-) {
+export async function installPackages({
+    dependencies,
+    devDependencies,
+}: InstallDependenciesOptions) {
     if (!dependencies?.length && !devDependencies?.length) return;
 
-    // Instalando pacotes que não são de desenvolvimento
-    if (dependencies?.length) {
-        const spinner = log ? ora('Instalando pacotes').start() : null;
+    const { installer } = await inquirer.prompt({
+        type: 'list',
+        message: 'Qual instalador você usa:',
+        name: 'installer',
+        choices: ['npm', 'pnpm', 'yarn'] as Installers[],
+        default: 'pnpm',
+    });
 
-        try {
-            // Instalando pacotes
-            await install({ installer, dependencies });
+    const spinner = ora().start('Fazendo a instalação dos pacotes e pacotes de desenvolvimento...');
 
-            if (spinner) spinner.succeed(buildListInConsole('Pacotes instalados', dependencies));
-        } catch (error) {
-            if (spinner) spinner.fail('Erro ao instalar os pacotes');
-            throw error;
-        }
-    }
+    await Promise.all([
+        dependencies?.length ? install({ installer, dependencies }) : undefined,
+        devDependencies?.length
+            ? install({ installer, dependencies: devDependencies, dev: true })
+            : undefined,
+    ]);
 
-    // Instalando pacotes para desenvolvimento
-    if (devDependencies?.length) {
-        const spinner = log ? ora('Instalando pacotes de desenvolvimento').start() : null;
+    await sleep(1500);
+    if (dependencies?.length)
+        spinner.info(
+            buildListInConsole(
+                `Total de ${dependencies?.length} pacotes foram instalados`,
+                dependencies,
+            ),
+        );
 
-        try {
-            // Instalando pacotes
-            await install({ installer, dependencies: devDependencies, dev: true });
+    if (devDependencies?.length)
+        spinner.info(
+            buildListInConsole(
+                `Total de ${dependencies?.length} pacotes de desenvolvimento foram instalados`,
+                devDependencies,
+            ),
+        );
 
-            if (spinner)
-                spinner.succeed(
-                    buildListInConsole('Pacotes de desenvolvimentos instados', devDependencies),
-                );
-        } catch (error) {
-            if (spinner) spinner.fail('Erro ao instalar pacotes de desenvolvimento');
-            throw error;
-        }
-    }
+    spinner.succeed('Todos os pacotes foram instalados');
 }
 
 /**
@@ -57,11 +58,22 @@ export async function installPackages(
  */
 function install(options: InstallOptions) {
     // Exemplo: npm install ou yarn add
-    const installerCommand = `${options.installer} ${options.installer == 'yarn' ? 'add' : 'install'}`;
+    const installerCommand = `${options.installer} ${options.installer == 'npm' ? 'install' : 'add'}`;
     const dependencies = options.dependencies.join(' ');
-    const isDev = options.dev ? '-D' : '';
+    const isDev = options.dev ? '-D ' : '';
 
-    return exec(['cd $(pwd)', `${installerCommand} ${isDev} ${dependencies}`].join(' && '), true);
+    console.log(
+        [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev}${dependencies}`].join(
+            ' && ',
+        ),
+    );
+
+    return exec(
+        [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(
+            ' && ',
+        ),
+        true,
+    );
 }
 
 export interface InstallOptions {
@@ -74,3 +86,5 @@ export interface InstallDependenciesOptions {
     dependencies?: string[];
     devDependencies?: string[];
 }
+
+export type Installers = 'npm' | 'pnpm' | 'yarn';

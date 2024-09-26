@@ -106,5 +106,4 @@ dist
 
 # Others
 
-*.vscode
 genCrypt.mjs

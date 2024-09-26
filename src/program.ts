@@ -1,8 +1,11 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable security/detect-object-injection */
-import * as Resources from './structures/resources/';
 import * as Commands from './commands/index';
 
 import inquirer, { QuestionCollection } from 'inquirer';
+
+import { writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 // Types
 import type CommandBase from './structures/command-base';
@@ -11,54 +14,39 @@ export default class Client {
     constructor() {}
 
     public async start() {
+        if (!process.env.GITHUB_TOKEN || typeof process.env.GITHUB_TOKEN !== 'string') {
+            const { githubToken } = await inquirer.prompt({
+                type: 'password',
+                name: 'githubToken',
+                message: 'Antes de continuar, informa seu token de acesso do github:',
+
+                validate(input) {
+                    if (!input.length) return 'Você é obrigado a definir um token';
+                    return true;
+                },
+            });
+
+            const isTs = __filename.split('.')[1] == 'ts';
+
+            await writeFile(
+                join(__dirname, isTs ? '..' : '../..', '.env'),
+                'GITHUB_TOKEN=' + githubToken,
+            );
+        }
+
+        return await this.listCommands();
+    }
+
+    public async listCommands() {
         const { commandName } = await inquirer.prompt({
             type: 'list',
             name: 'commandName',
-            message: 'Escolha o projeto para ser carregado:',
+            message: 'Escolha qual ação deseja fazer:',
             choices: Object.keys(Commands),
         });
 
         const command: CommandBase = new Commands[commandName]();
-        const optionsForCommand = await this.createAnswers(command.options);
-
-        await command['run'](optionsForCommand);
-        return;
-    }
-
-    public createAnswers(options?: CommandOptionsToCreateAnswer) {
-        if (!options) return;
-
-        const answers = {
-            installer: {
-                type: 'list',
-                name: 'installer',
-                message: 'Selecione qual instalador você deseja usar:',
-                choices: ['npm', 'pnpm', 'yarn'] as Installers[],
-                default: 'pnpm',
-            } as QuestionCollection,
-
-            resources: {
-                type: 'checkbox',
-                name: 'resources',
-                message: 'Quais recursos adicionais você deseja adicionar ?',
-                choices: Object.keys(Resources) as ResourcesAvailable,
-            } as QuestionCollection,
-        };
-
-        if (options.forceChooseOne?.length) {
-            for (const answerName of options.forceChooseOne) {
-                answers[answerName] = {
-                    ...answers[answerName],
-
-                    validate(input) {
-                        if (!input.length) return 'Você deve pelo menos selecionar uma opção';
-                        return true;
-                    },
-                };
-            }
-        }
-
-        return inquirer.prompt(options.answers.map((name) => answers[name]));
+        return await command['run']();
     }
 }
 
@@ -67,8 +55,4 @@ export interface CommandOptionsToCreateAnswer {
     forceChooseOne?: AnswersNames[];
 }
 
-export type AnswersNames = 'installer' | 'resources';
-
-export type Installers = 'npm' | 'pnpm' | 'yarn';
-
-export type ResourcesAvailable = (keyof typeof Resources)[];
+export type AnswersNames = 'installer';
