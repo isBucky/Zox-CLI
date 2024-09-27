@@ -5,7 +5,6 @@ import type Github from '.';
 export async function resolveResource(git: Github, name: string) {
     const content = await git.getContent('resources', name);
     const resourceData = await git.getData(content);
-    const scripts = resourceData.package?.scripts || {};
 
     // Arrays
     const files = content.filter((file) => file.type == 'blob' && file.path !== 'data.json');
@@ -16,12 +15,8 @@ export async function resolveResource(git: Github, name: string) {
     const dependencies = resourceData.package?.dependencies || [];
     const devDependencies = resourceData.package?.devDependencies || [];
 
-    // Metrics
-    const downloadSize = files.reduce((a, file) => a + (file?.size || 0), 0);
-    const filesDownloaded = files.length;
-
     return {
-        downloadSize,
+        downloadSize: files.reduce((a, file) => a + (file?.size || 0), 0),
         folders,
         files,
 
@@ -33,8 +28,10 @@ export async function resolveResource(git: Github, name: string) {
 
                 dependencies,
                 devDependencies,
-                scripts,
+                scripts: resourceData.package?.scripts || {},
             },
-        } satisfies ResourceData,
+
+            env: resourceData?.env || {},
+        } as ResourceData,
     };
 }

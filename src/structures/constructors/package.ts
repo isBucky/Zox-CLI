@@ -108,16 +108,6 @@ export default class PackageJson {
     }
 
     /**
-     * Use para trocar o nome do projeto no package.json
-     *
-     * @param name Novo nome do projeto no package.json
-     */
-    public addName(name: string) {
-        this.modifications.set('name', name);
-        return true;
-    }
-
-    /**
      * Use para adicionar novos scripts no package.json do projeto
      *
      * @param name Nome do script (Não use espaços no nome)
@@ -145,12 +135,6 @@ export default class PackageJson {
 }
 
 export interface PackageOptions {
-    /**
-     * Nome que será dado ao projeto no package.json
-     *
-     * @note Não coloque nomes com espaço em branco
-     */
-    name?: string;
     /**
      * Use para adicionar novos scripts no package.json do projeto
      */

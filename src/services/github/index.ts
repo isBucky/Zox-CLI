@@ -83,6 +83,7 @@ export default class Github {
                 : await this.getContents(type, name);
         const templateData = await this.getData(content);
         let scripts = templateData.package?.scripts || {};
+        let env = templateData.env || {};
 
         spinnerFirst.info('Conteúdo adquirido');
 
@@ -110,17 +111,23 @@ export default class Github {
             folders = folders.concat(...resources.map((r) => r.data.folders || []));
             files = files.concat(...resources.map((f) => f.files || []));
 
+            scripts = {
+                ...scripts,
+                ...resources.reduce((acc, curr) => ({ ...acc, ...curr.data.package?.scripts }), {}),
+            };
+
+            env = {
+                ...env,
+                ...resources.reduce((acc, curr) => ({ ...acc, ...curr.data.env }), {}),
+            };
+
             dependencies = dependencies.concat(
                 ...resources.map((d) => d.data.package?.dependencies || []),
             );
 
             devDependencies = devDependencies.concat(
-                ...resources.map((d) => d.data.package.devDependencies || []),
+                ...resources.map((d) => d.data.package?.devDependencies || []),
             );
-
-            for (const script of resources.map((d) => d.data.package.scripts)) {
-                scripts = { ...scripts, ...script };
-            }
 
             spinnerFirst.info(buildListInConsole('Recursos adicionados', templateData.resources));
         }

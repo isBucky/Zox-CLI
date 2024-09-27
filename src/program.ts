@@ -2,7 +2,7 @@
 /* eslint-disable security/detect-object-injection */
 import * as Commands from './commands/index';
 
-import inquirer, { QuestionCollection } from 'inquirer';
+import inquirer from 'inquirer';
 
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';

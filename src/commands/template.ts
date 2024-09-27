@@ -2,6 +2,7 @@ import { installPackages } from '../structures/constructors';
 import PackageJson from '../structures/constructors/package';
 import { createProjectAnswer } from '../structures/answers';
 import CommandBase from '../structures/command-base';
+import { Env } from '../structures/constructors';
 import Github from '../services/github';
 import { Resource } from './resource';
 
@@ -34,6 +35,13 @@ export class Template extends CommandBase {
         await sleep(1500);
         await packageJson.build();
 
+        if (Object.keys(templateDownloaded.data?.env || {}).length) {
+            const templateEnv = templateDownloaded.data.env;
+            const env = Env.all();
+
+            Env.update('/', { ...env, ...templateEnv });
+        }
+
         await sleep(1500);
         const { addResource } = await inquirer.prompt({
             type: 'confirm',
@@ -41,7 +49,13 @@ export class Template extends CommandBase {
             message: 'Deseja adicionar novos recursos para o seu projeto:',
             default: false,
         });
-        if (addResource) return await new Resource().run(false);
+
+        if (addResource) {
+            const { dependencies, devDependencies } = (await new Resource().run(false))!;
+
+            templateDownloaded.data.package?.dependencies?.push(...(dependencies || []));
+            templateDownloaded.data.package?.devDependencies?.push(...(devDependencies || []));
+        }
 
         await installPackages({
             dependencies: templateDownloaded.data.package?.dependencies,
@@ -54,9 +68,9 @@ export interface TemplateData {
     folders?: string[];
     resources?: string[];
     package?: {
-        name?: string;
         scripts?: Record<string, string>;
         dependencies?: string[];
         devDependencies?: string[];
     };
+    env?: Record<string, string | null>;
 }
