@@ -1,7 +1,7 @@
 import { exec, buildListInConsole } from '../functions';
 
+import { select } from '@inquirer/prompts';
 import { sleep } from 'bucky.js';
-import inquirer from 'inquirer';
 import ora from 'ora';
 
 /**
@@ -16,10 +16,8 @@ export async function installPackages({
 }: InstallDependenciesOptions) {
     if (!dependencies?.length && !devDependencies?.length) return;
 
-    const { installer } = await inquirer.prompt({
-        type: 'list',
+    const installer: Installers = await select({
         message: 'Qual instalador você usa:',
-        name: 'installer',
         choices: ['npm', 'pnpm', 'yarn'] as Installers[],
         default: 'pnpm',
     });

@@ -5,8 +5,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { omit } from '@suptreze/shared/functions';
-import ObjectManager from 'object.mn';
 import { isFile, sleep } from 'bucky.js';
+import ObjectManager from 'object.mn';
 import ora from 'ora';
 
 export default class PackageJson {

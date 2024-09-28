@@ -1,51 +1,45 @@
 import { installPackages } from '../structures/constructors';
 import PackageJson from '../structures/constructors/package';
 import { createProjectAnswer } from '../structures/answers';
-import CommandBase from '../structures/command-base';
 import { Env } from '../structures/constructors';
 import Github from '../services/github';
 import { Resource } from './resource';
 
+import { select, confirm } from '@inquirer/prompts';
 import { sleep } from 'bucky.js';
-import inquirer from 'inquirer';
 
-export class Template extends CommandBase {
+export class Template {
     public github: Github;
+    public description: string;
 
     constructor() {
-        super();
-
         this.github = new Github();
+        this.description = 'Use para criar novos templates';
     }
 
     async run() {
         await createProjectAnswer();
 
         const templatesAvailable = await this.github.getAllTemplates();
-        const { templateName } = await inquirer.prompt({
-            type: 'list',
+        const templateName: string = await select({
             message: 'Escolha qual template deseja usar:',
-            name: 'templateName',
             choices: templatesAvailable.map((template) => template.name),
         });
 
         const templateDownloaded = await this.github.download('templates', templateName);
         const packageJson = new PackageJson(templateDownloaded.data.package);
+        const env = new Env();
 
         await sleep(1500);
         await packageJson.build();
 
         if (Object.keys(templateDownloaded.data?.env || {}).length) {
             const templateEnv = templateDownloaded.data.env;
-            const env = Env.all();
-
-            Env.update('/', { ...env, ...templateEnv });
+            env.update('/', { ...env.all(), ...templateEnv });
         }
 
         await sleep(1500);
-        const { addResource } = await inquirer.prompt({
-            type: 'confirm',
-            name: 'addResource',
+        const addResource = await confirm({
             message: 'Deseja adicionar novos recursos para o seu projeto:',
             default: false,
         });

@@ -1,52 +1,75 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable security/detect-object-injection */
+import { Env } from './structures/constructors';
 import * as Commands from './commands/index';
 
-import inquirer from 'inquirer';
-
-import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
-// Types
-import type CommandBase from './structures/command-base';
+import { password, select } from '@inquirer/prompts';
 
 export default class Client {
     constructor() {}
 
     public async start() {
-        if (!process.env.GITHUB_TOKEN || typeof process.env.GITHUB_TOKEN !== 'string') {
-            const { githubToken } = await inquirer.prompt({
-                type: 'password',
-                name: 'githubToken',
-                message: 'Antes de continuar, informa seu token de acesso do github:',
+        const env = new Env(true);
 
-                validate(input) {
-                    if (!input.length) return 'Você é obrigado a definir um token';
-                    return true;
-                },
-            });
+        if (!env.has('GITHUB_TOKEN')) {
+            try {
+                const githubToken = await password({
+                    message: 'Antes de continuar, informa seu token de acesso do github:',
+                    mask: '*',
 
-            const isTs = __filename.split('.')[1] == 'ts';
+                    validate(input) {
+                        if (!input.length) return 'Você é obrigado a definir um token';
+                        return true;
+                    },
+                });
 
-            await writeFile(
-                join(__dirname, isTs ? '..' : '../..', '.env'),
-                'GITHUB_TOKEN=' + githubToken,
-            );
+                env.set('GITHUB_TOKEN', githubToken);
+            } catch (error: any) {
+                if (error['message'] == 'User force closed the prompt with 0 null') return;
+            }
+        }
+
+        if (!env.get('GITHUB_REPO_DEFAULT')?.length || !env.get('GITHUB_OWNER_DEFAULT')?.length) {
+            env.set('GITHUB_OWNER_DEFAULT', 'isBucky');
+            env.set('GITHUB_REPO_DEFAULT', 'Zox-Template');
+        }
+
+        if (!env.get('GITHUB_REPO')?.length || !env.get('GITHUB_OWNER')?.length) {
+            env.set('GITHUB_OWNER', process.env.GITHUB_OWNER_DEFAULT);
+            env.set('GITHUB_REPO', process.env.GITHUB_REPO_DEFAULT);
+        }
+
+        if (!env.has('GITHUB_REPOS') || !env.get('GITHUB_REPOS')?.length) {
+            env.set('GITHUB_REPOS', [
+                [process.env.GITHUB_OWNER_DEFAULT, process.env.GITHUB_REPO_DEFAULT],
+            ]);
         }
 
         return await this.listCommands();
     }
 
     public async listCommands() {
-        const { commandName } = await inquirer.prompt({
-            type: 'list',
-            name: 'commandName',
-            message: 'Escolha qual ação deseja fazer:',
-            choices: Object.keys(Commands),
-        });
+        const commands = Object.assign(
+            {},
+            ...Object.keys(Commands).map((CommandName) => ({
+                [CommandName]: new Commands[CommandName](),
+            })),
+        );
 
-        const command: CommandBase = new Commands[commandName]();
-        return await command['run']();
+        try {
+            const commandName = await select({
+                message: 'Escolha qual ação deseja fazer:',
+                choices: Object.entries(commands).map(([name, value]) => {
+                    return {
+                        value: name,
+                        description: value!['description'] ?? '',
+                    };
+                }),
+            });
+
+            return await commands[commandName]['run']();
+        } catch (error: any) {
+            if (error['message'] == 'User force closed the prompt with 0 null') return;
+        }
     }
 }
 
