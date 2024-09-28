@@ -18,8 +18,8 @@ export default class Github {
     public instance: AxiosInstance;
 
     constructor() {
-        this.owner = 'isBucky';
-        this.repoName = 'Zox-Templates';
+        this.owner = process.env.GITHUB_OWNER!;
+        this.repoName = process.env.GITHUB_REPO!;
         this.token = process.env.GITHUB_TOKEN!;
 
         this.instance = axios.create({
@@ -77,112 +77,122 @@ export default class Github {
         await sleep(sleepTime);
         spinnerFirst.start('Adquirindo conteúdo...');
 
-        const content =
-            typeof name == 'string'
-                ? await this.getContent(type, name)
-                : await this.getContents(type, name);
-        const templateData = await this.getData(content);
-        let scripts = templateData.package?.scripts || {};
-        let env = templateData.env || {};
+        try {
+            const content =
+                typeof name == 'string'
+                    ? await this.getContent(type, name)
+                    : await this.getContents(type, name);
+            const templateData = await this.getData(content);
+            let scripts = templateData.package?.scripts || {};
+            let env = templateData.env || {};
 
-        spinnerFirst.info('Conteúdo adquirido');
+            spinnerFirst.info('Conteúdo adquirido');
 
-        // Arrays
-        let files = content.filter((file) => file.type == 'blob' && file.path !== 'data.json');
-        let folders = (<string[]>[]).concat(
-            content.filter((i) => i.type == 'tree').map((i) => i.path),
-            templateData?.folders || [],
-        );
-        let dependencies = templateData.package?.dependencies || [];
-        let devDependencies = templateData.package?.devDependencies || [];
-
-        // Metrics
-        let downloadSize = files.reduce((a, file) => a + (file?.size || 0), 0);
-
-        if (type == 'templates' && templateData?.resources?.length) {
-            spinnerFirst.start('Recursos adicionais detectado, adicionando-os...');
-
-            await sleep(sleepTime);
-            const resources = await Promise.all(
-                templateData.resources.map((r) => resolveResource(this, r)),
+            // Arrays
+            let files = content.filter((file) => file.type == 'blob' && file.path !== 'data.json');
+            let folders = (<string[]>[]).concat(
+                content.filter((i) => i.type == 'tree').map((i) => i.path),
+                templateData?.folders || [],
             );
+            let dependencies = templateData.package?.dependencies || [];
+            let devDependencies = templateData.package?.devDependencies || [];
 
-            downloadSize += resources.reduce((i, r) => i + r.downloadSize, 0);
-            folders = folders.concat(...resources.map((r) => r.data.folders || []));
-            files = files.concat(...resources.map((f) => f.files || []));
+            // Metrics
+            let downloadSize = files.reduce((a, file) => a + (file?.size || 0), 0);
 
-            scripts = {
-                ...scripts,
-                ...resources.reduce((acc, curr) => ({ ...acc, ...curr.data.package?.scripts }), {}),
+            if (type == 'templates' && templateData?.resources?.length) {
+                spinnerFirst.start('Recursos adicionais detectado, adicionando-os...');
+
+                await sleep(sleepTime);
+                const resources = await Promise.all(
+                    templateData.resources.map((r) => resolveResource(this, r)),
+                );
+
+                downloadSize += resources.reduce((i, r) => i + r.downloadSize, 0);
+                folders = folders.concat(...resources.map((r) => r.data.folders || []));
+                files = files.concat(...resources.map((f) => f.files || []));
+
+                scripts = {
+                    ...scripts,
+                    ...resources.reduce(
+                        (acc, curr) => ({ ...acc, ...curr.data.package?.scripts }),
+                        {},
+                    ),
+                };
+
+                env = {
+                    ...env,
+                    ...resources.reduce((acc, curr) => ({ ...acc, ...curr.data.env }), {}),
+                };
+
+                dependencies = dependencies.concat(
+                    ...resources.map((d) => d.data.package?.dependencies || []),
+                );
+
+                devDependencies = devDependencies.concat(
+                    ...resources.map((d) => d.data.package?.devDependencies || []),
+                );
+
+                spinnerFirst.info(
+                    buildListInConsole('Recursos adicionados', templateData.resources),
+                );
+            }
+
+            if (folders.length) {
+                spinnerFirst.start('Criando as pastas...');
+
+                await sleep(sleepTime);
+                await createFolders(folders);
+
+                spinnerFirst.info(
+                    buildListInConsole('Total de pastas criadas: ' + folders.length, folders),
+                );
+            }
+
+            if (files.length) {
+                spinnerFirst.start(
+                    `Total de ${files.length} arquivos - ${formatSizeUnits(downloadSize)} sendo baixados do github no momento...`,
+                );
+
+                await sleep(sleepTime);
+                await copyFilesFromGithub(this, files);
+
+                spinnerFirst.info(
+                    buildListInConsole(
+                        `Total de ${files.length} arquivos - ${formatSizeUnits(downloadSize)} foram baixados`,
+                        files.map((i) => i.path),
+                    ),
+                );
+            }
+
+            spinnerFirst.succeed(
+                type == 'templates'
+                    ? `Template ${name} construído`
+                    : `Os recursos ${typeof name == 'string' ? name : name.join(', ')} foram adicionados`,
+            );
+            return {
+                downloadSize,
+                filesDownloaded: files.length,
+
+                folders,
+                files,
+
+                data: {
+                    ...templateData,
+
+                    package: {
+                        ...templateData.package,
+
+                        dependencies,
+                        devDependencies,
+                        scripts,
+                    },
+                } as TemplateData,
             };
-
-            env = {
-                ...env,
-                ...resources.reduce((acc, curr) => ({ ...acc, ...curr.data.env }), {}),
-            };
-
-            dependencies = dependencies.concat(
-                ...resources.map((d) => d.data.package?.dependencies || []),
-            );
-
-            devDependencies = devDependencies.concat(
-                ...resources.map((d) => d.data.package?.devDependencies || []),
-            );
-
-            spinnerFirst.info(buildListInConsole('Recursos adicionados', templateData.resources));
+        } catch (error) {
+            spinnerFirst.fail(`Ocorreu um erro ao tentar fazer download do ${type}`);
+            throw error;
         }
-
-        if (folders.length) {
-            spinnerFirst.start('Criando as pastas...');
-
-            await sleep(sleepTime);
-            await createFolders(folders);
-
-            spinnerFirst.info(
-                buildListInConsole('Total de pastas criadas: ' + folders.length, folders),
-            );
-        }
-
-        if (files.length) {
-            spinnerFirst.start(
-                `Total de ${files.length} arquivos - ${formatSizeUnits(downloadSize)} sendo baixados do github no momento...`,
-            );
-
-            await sleep(sleepTime);
-            await copyFilesFromGithub(this, files);
-
-            spinnerFirst.info(
-                buildListInConsole(
-                    `Total de ${files.length} arquivos - ${formatSizeUnits(downloadSize)} foram baixados`,
-                    files.map((i) => i.path),
-                ),
-            );
-        }
-
-        spinnerFirst.succeed(
-            type == 'templates'
-                ? `Template ${name} construído`
-                : `Os recursos ${typeof name == 'string' ? name : name.join(', ')} foram adicionados`,
-        );
-        return {
-            downloadSize,
-            filesDownloaded: files.length,
-
-            folders,
-            files,
-
-            data: {
-                ...templateData,
-
-                package: {
-                    ...templateData.package,
-
-                    dependencies,
-                    devDependencies,
-                    scripts,
-                },
-            } as TemplateData,
-        };
     }
 
     public async getData<T extends TemplateData>(tree: GetContentResult['tree']) {

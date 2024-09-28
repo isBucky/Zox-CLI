@@ -7,12 +7,16 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export class Env {
-    public static dotEnvPath = join(global.currentLocal, '.env');
+    public path: string;
+
+    constructor(public isLocalEnv: boolean = false) {
+        this.path = isLocalEnv ? global.envZoxPath : join(global.currentLocal, '.env');
+    }
 
     /**
      * Use essa função para puxar todos os valores do .env
      */
-    public static all() {
+    public all() {
         return this.content().objectData;
     }
 
@@ -21,10 +25,26 @@ export class Env {
      *
      * @param name Nome do valor
      */
-    public static has(name: string) {
+    public has(name: string) {
         const content = this.content();
 
         return content.has(this.formatName(name));
+    }
+
+    /**
+     * Use para obter valores do .env
+     *
+     * @param name Nome do valor
+     */
+    public get(name: string) {
+        const content = this.content();
+        const value = content.get(name);
+
+        try {
+            return JSON.parse(value);
+        } catch (err) {
+            return value;
+        }
     }
 
     /**
@@ -33,10 +53,10 @@ export class Env {
      * @param name Nome do valor
      * @param value Valor
      */
-    public static set(name: string, value?: string) {
+    public set(name: string, value?: any) {
         const content = this.content();
 
-        content.set(this.formatName(name), value);
+        content.set(this.formatName(name), this.formatValue(value));
         return this.write(content);
     }
 
@@ -45,7 +65,7 @@ export class Env {
      *
      * @param name Nome do valor
      */
-    public static delete(name: string) {
+    public delete(name: string) {
         const content = this.content();
 
         content.delete(this.formatName(name));
@@ -58,31 +78,39 @@ export class Env {
      * @param name Nome do valor
      * @param value Valor
      */
-    public static update(name: string, value?: string) {
+    public update(name: string, value?: string) {
         const content = this.content();
 
-        content.update(this.formatName(name), value);
+        content.update(this.formatName(name), this.formatValue(value));
         return this.write(content);
     }
 
-    private static content() {
-        const isDotEnv = isFile(this.dotEnvPath);
+    private content() {
+        const isDotEnv = isFile(this.path);
         if (!isDotEnv) return new ObjectManager({});
 
-        const content = readFileSync(this.dotEnvPath).toString('utf-8');
+        const content = readFileSync(this.path).toString('utf-8');
         return new ObjectManager(dotenv.parse(content));
     }
 
-    private static write(content: ObjectManager) {
+    private write(content: ObjectManager) {
         let message = '';
 
         for (const [name, value] of Object.entries(content.objectData))
-            message += `${name}=${value ?? ''}\n`;
+            message += `${name}=${value ?? ''}\n\n`;
 
-        return writeFileSync(this.dotEnvPath, message);
+        if (this.isLocalEnv) process.env = { ...process.env, ...content.objectData };
+        return writeFileSync(this.path, message);
     }
 
-    private static formatName(name: string) {
+    private formatValue(value: any) {
+        if (!value) return '';
+
+        if (['object', 'array'].includes(typeof value)) return JSON.stringify(value);
+        return value.toString().replace(new RegExp(' ', 'gi'), '');
+    }
+
+    private formatName(name: string) {
         return name.toUpperCase().replace(new RegExp(' ', 'gi'), '_');
     }
 }
