@@ -22,8 +22,6 @@ export default class Github {
     }
 
     public get instance() {
-        console.log(this);
-
         return axios.create({
             baseURL: `https://api.github.com/repos/${this.owner}/${this.repoName}/`,
             headers: {
