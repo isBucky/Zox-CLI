@@ -1174,13 +1174,6 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-<<<<<<< HEAD
-  lru-cache@9.1.2:
-    resolution: {integrity: sha512-ERJq3FOzJTxBbFjZ7iDs+NiK4VI9Wz+RdrrAB8dio1oV+YvdPzUEE4QNiT2VD51DkIbCYRUUzCRkssXCHqSnKQ==}
-    engines: {node: 14 || >=16.14}
-
-=======
->>>>>>> 23fdd31e4e6dc6752f89107f2328ee675b9d161a
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
@@ -1900,24 +1893,13 @@ snapshots:
 
   '@octokit/oauth-app@6.1.0':
     dependencies:
-<<<<<<< HEAD
-      '@octokit/auth-oauth-app': 5.0.6
-      '@octokit/auth-oauth-user': 2.1.2
-      '@octokit/auth-unauthenticated': 3.0.5
-      '@octokit/core': 4.2.4
-      '@octokit/oauth-authorization-url': 5.0.0
-      '@octokit/oauth-methods': 2.0.6
-      '@types/aws-lambda': 8.10.145
-      fromentries: 1.3.2
-=======
       '@octokit/auth-oauth-app': 7.1.0
       '@octokit/auth-oauth-user': 4.1.0
       '@octokit/auth-unauthenticated': 5.0.1
       '@octokit/core': 5.2.0
       '@octokit/oauth-authorization-url': 6.0.2
       '@octokit/oauth-methods': 4.1.0
-      '@types/aws-lambda': 8.10.137
->>>>>>> 23fdd31e4e6dc6752f89107f2328ee675b9d161a
+      '@types/aws-lambda': 8.10.145
       universal-user-agent: 6.0.1
 
   '@octokit/oauth-authorization-url@6.0.2': {}
@@ -2748,11 +2730,6 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-<<<<<<< HEAD
-  lru-cache@9.1.2: {}
-
-=======
->>>>>>> 23fdd31e4e6dc6752f89107f2328ee675b9d161a
   merge2@1.4.1: {}
 
   micromatch@4.0.8:

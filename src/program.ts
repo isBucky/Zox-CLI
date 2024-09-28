@@ -30,7 +30,7 @@ export default class Client {
 
         if (!env.get('GITHUB_REPO_DEFAULT')?.length || !env.get('GITHUB_OWNER_DEFAULT')?.length) {
             env.set('GITHUB_OWNER_DEFAULT', 'isBucky');
-            env.set('GITHUB_REPO_DEFAULT', 'Zox-Template');
+            env.set('GITHUB_REPO_DEFAULT', 'Zox-Templates');
         }
 
         if (!env.get('GITHUB_REPO')?.length || !env.get('GITHUB_OWNER')?.length) {
@@ -69,6 +69,7 @@ export default class Client {
             return await commands[commandName]['run']();
         } catch (error: any) {
             if (error['message'] == 'User force closed the prompt with 0 null') return;
+            throw error;
         }
     }
 }

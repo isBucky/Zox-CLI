@@ -15,17 +15,20 @@ export default class Github {
     public repoName: string;
     public token: string;
 
-    public instance: AxiosInstance;
-
     constructor() {
         this.owner = process.env.GITHUB_OWNER!;
         this.repoName = process.env.GITHUB_REPO!;
         this.token = process.env.GITHUB_TOKEN!;
+    }
 
-        this.instance = axios.create({
+    public get instance() {
+        console.log(this);
+
+        return axios.create({
             baseURL: `https://api.github.com/repos/${this.owner}/${this.repoName}/`,
             headers: {
                 Authorization: 'Bearer ' + this.token,
+                'X-GitHub-Api-Version': '2022-11-28',
             },
         });
     }
