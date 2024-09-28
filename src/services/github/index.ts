@@ -1,4 +1,5 @@
 import { buildListInConsole, unifyArrays, unifyObjects } from '../../structures/functions';
+import { configZoxName } from '../../structures/config';
 import { copyFilesFromGithub } from './copy-files';
 import { createFolders } from './create-folders';
 import { resolveResource } from './resource';
@@ -90,7 +91,9 @@ export default class Github {
             spinnerFirst.info('Conteúdo adquirido');
 
             // Arrays
-            let files = content.filter((file) => file.type == 'blob' && file.path !== 'data.json');
+            let files = content.filter(
+                (file) => file.type == 'blob' && file.path !== configZoxName,
+            );
             let folders = (<string[]>[]).concat(
                 content.filter((i) => i.type == 'tree').map((i) => i.path),
                 templateData?.folders || [],
@@ -197,7 +200,7 @@ export default class Github {
     }
 
     public async getData<T extends TemplateData>(tree: GetContentResult['tree']) {
-        const files = tree.filter((data) => data.path == 'data.json');
+        const files = tree.filter((data) => data.path == configZoxName);
         if (!files.length) return {} as T;
 
         if (files.length == 1) {

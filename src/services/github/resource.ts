@@ -1,4 +1,5 @@
 // Types
+import { configZoxName } from '../../structures/config';
 import type { ResourceData } from '../../commands';
 import type Github from '.';
 
@@ -7,7 +8,7 @@ export async function resolveResource(git: Github, name: string) {
     const resourceData = await git.getData(content);
 
     // Arrays
-    const files = content.filter((file) => file.type == 'blob' && file.path !== 'data.json');
+    const files = content.filter((file) => file.type == 'blob' && file.path !== configZoxName);
     const folders = (<string[]>[]).concat(
         content.filter((i) => i.type == 'tree').map((i) => i.path),
         resourceData?.folders || [],

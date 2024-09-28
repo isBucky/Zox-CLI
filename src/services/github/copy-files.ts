@@ -1,4 +1,6 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
+import { configZoxName } from '../../structures/config';
+
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -12,7 +14,7 @@ export async function copyFilesFromGithub(git: Github, files: GetContentResult['
     await Promise.all(
         files.map(async (file) => {
             const request = await git.instance.get(`git/blobs/${file.sha}`);
-            if (file.path == 'data.json') return;
+            if (file.path == configZoxName) return;
 
             unresolvedPromiseOfWriting.push(
                 writeFile(join(global['currentLocal'], file.path), request.data.content, {
