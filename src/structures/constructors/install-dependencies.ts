@@ -18,7 +18,7 @@ export async function installPackages({
 
     const installer: Installers = await select({
         message: 'Qual instalador você usa:',
-        choices: ['npm', 'pnpm', 'yarn'] as Installers[],
+        choices: ['npm', 'pnpm', 'yarn', 'bun'] as Installers[],
         default: 'pnpm',
     });
 
@@ -79,4 +79,4 @@ export interface InstallDependenciesOptions {
     devDependencies?: string[];
 }
 
-export type Installers = 'npm' | 'pnpm' | 'yarn';
+export type Installers = 'npm' | 'pnpm' | 'yarn' | 'bun';
