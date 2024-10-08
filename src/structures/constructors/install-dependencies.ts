@@ -58,7 +58,7 @@ function install(options: InstallOptions) {
     // Exemplo: npm install ou yarn add
     const installerCommand = `${options.installer} ${options.installer == 'npm' ? 'install' : 'add'}`;
     const dependencies = options.dependencies.join(' ');
-    const isDev = options.dev ? '-D ' : '';
+    const isDev = options.dev ? (options.installer == 'bun' ? '-d ' : '-D ') : '';
 
     return exec(
         [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(
