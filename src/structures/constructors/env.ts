@@ -10,7 +10,7 @@ export class Env {
     public path: string;
 
     constructor(public isLocalEnv: boolean = false) {
-        this.path = isLocalEnv ? global.envZoxPath : join(global.currentLocal, '.env');
+        this.path = isLocalEnv ? global.envZoxPath : join(global.currentLocal, '.env.example');
     }
 
     /**

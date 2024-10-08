@@ -11,7 +11,7 @@ import chalk from 'chalk';
 const isTs = __filename.split('.')[1] == 'ts';
 
 global.currentLocal = process.cwd();
-global.envZoxPath = join(__dirname, isTs ? '' : '..', '.env');
+global.envZoxPath = join(__dirname, isTs ? '' : '..', '.env.example');
 
 dotenv.config({ path: global.envZoxPath });
 
