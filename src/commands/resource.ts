@@ -3,7 +3,6 @@ import PackageJson from '../structures/constructors/package';
 import Github from '../services/github';
 
 import { checkbox } from '@inquirer/prompts';
-import { sleep } from 'bucky.js';
 
 // Types
 import type { TemplateData } from './template';
@@ -26,7 +25,6 @@ export class Resource {
         const packageJson = new PackageJson(resourceDownloaded.data.package);
         const env = new Env();
 
-        await sleep(1500);
         await packageJson.build();
 
         if (Object.keys(resourceDownloaded.data?.env || {}).length) {
@@ -35,7 +33,6 @@ export class Resource {
         }
 
         if (installPackagesAfterTemplate) {
-            await sleep(1500);
             await installPackages({
                 dependencies: resourceDownloaded.data.package?.dependencies,
                 devDependencies: resourceDownloaded.data.package?.devDependencies,

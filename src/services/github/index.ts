@@ -4,8 +4,8 @@ import { copyFilesFromGithub } from './copy-files';
 import { createFolders } from './create-folders';
 import { resolveResource } from './resource';
 
-import axios, { type AxiosInstance } from 'axios';
-import { formatSizeUnits, sleep } from 'bucky.js';
+import axios from 'axios';
+import { formatSizeUnits } from 'bucky.js';
 import ora from 'ora';
 
 // Types
@@ -69,14 +69,12 @@ export default class Github {
     }
 
     public async download(type: Types, name: string | string[]) {
-        const sleepTime = 1500;
         const spinnerFirst = ora().start(
             type == 'templates'
                 ? `Construindo o template ${name}...\n`
                 : `Adicionando os recursos ${typeof name == 'string' ? name : name.join(', ')}...\n`,
         );
 
-        await sleep(sleepTime);
         spinnerFirst.start('Adquirindo conteúdo...');
 
         try {
@@ -107,7 +105,6 @@ export default class Github {
             if (type == 'templates' && templateData?.resources?.length) {
                 spinnerFirst.start('Recursos adicionais detectado, adicionando-os...');
 
-                await sleep(sleepTime);
                 const resources = await Promise.all(
                     templateData.resources.map((r) => resolveResource(this, r)),
                 );
@@ -145,7 +142,6 @@ export default class Github {
             if (folders.length) {
                 spinnerFirst.start('Criando as pastas...');
 
-                await sleep(sleepTime);
                 await createFolders(folders);
 
                 spinnerFirst.info(
@@ -158,7 +154,6 @@ export default class Github {
                     `Total de ${files.length} arquivos - ${formatSizeUnits(downloadSize)} sendo baixados do github no momento...`,
                 );
 
-                await sleep(sleepTime);
                 await copyFilesFromGithub(this, files);
 
                 spinnerFirst.info(

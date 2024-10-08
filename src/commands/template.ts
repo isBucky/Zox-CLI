@@ -30,7 +30,6 @@ export class Template {
         const packageJson = new PackageJson(templateDownloaded.data.package);
         const env = new Env();
 
-        await sleep(1500);
         await packageJson.build();
 
         if (Object.keys(templateDownloaded.data?.env || {}).length) {
@@ -38,7 +37,6 @@ export class Template {
             env.update('/', { ...env.all(), ...templateEnv });
         }
 
-        await sleep(1500);
         const addResource = await confirm({
             message: 'Deseja adicionar novos recursos para o seu projeto:',
             default: false,

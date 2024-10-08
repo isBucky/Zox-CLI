@@ -1,7 +1,6 @@
 import { exec, buildListInConsole } from '../functions';
 
 import { select } from '@inquirer/prompts';
-import { sleep } from 'bucky.js';
 import ora from 'ora';
 
 /**
@@ -24,29 +23,27 @@ export async function installPackages({
 
     const spinner = ora().start('Fazendo a instalação dos pacotes e pacotes de desenvolvimento...');
 
-    await Promise.all([
-        dependencies?.length ? install({ installer, dependencies }) : undefined,
-        devDependencies?.length
-            ? install({ installer, dependencies: devDependencies, dev: true })
-            : undefined,
-    ]);
+    if (dependencies?.length) {
+        await install({ installer, dependencies });
 
-    await sleep(1500);
-    if (dependencies?.length)
         spinner.info(
             buildListInConsole(
                 `Total de ${dependencies?.length} pacotes foram instalados`,
                 dependencies,
             ),
         );
+    }
 
-    if (devDependencies?.length)
+    if (devDependencies?.length) {
+        await install({ installer, dependencies: devDependencies, dev: true });
+
         spinner.info(
             buildListInConsole(
                 `Total de ${dependencies?.length} pacotes de desenvolvimento foram instalados`,
                 devDependencies,
             ),
         );
+    }
 
     spinner.succeed('Todos os pacotes foram instalados');
 }
@@ -58,7 +55,14 @@ function install(options: InstallOptions) {
     // Exemplo: npm install ou yarn add
     const installerCommand = `${options.installer} ${options.installer == 'npm' ? 'install' : 'add'}`;
     const dependencies = options.dependencies.join(' ');
-    const isDev = options.dev ? (options.installer == 'bun' ? '-d ' : '-D ') : '';
+    const isDev = options.dev ? (options.installer == 'bun' ? '-d' : '-D') : '';
+
+    console.log(
+        [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(
+            ' && ',
+        ),
+        '\n',
+    );
 
     return exec(
         [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(

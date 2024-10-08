@@ -5,8 +5,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { omit } from '@suptreze/shared/functions';
-import { isFile, sleep } from 'bucky.js';
 import ObjectManager from 'object.mn';
+import { isFile } from 'bucky.js';
 import ora from 'ora';
 
 export default class PackageJson {
@@ -63,14 +63,11 @@ export default class PackageJson {
      * Use essa função para construir o package.json do projeto
      */
     public async build() {
-        const sleepTime = 1500;
         const spinner = ora().start('Verificando integridade do package.json...');
 
-        await sleep(sleepTime);
         if (this.existsPackageJson && this.modifications.keys('/').length) {
             spinner.start('Adicionando modificações no existente package.json...');
 
-            await sleep(sleepTime);
             await this.modifyPackage();
 
             return spinner.succeed(
@@ -90,7 +87,6 @@ export default class PackageJson {
             spinner.info('Package.json criado');
 
             if (this.modifications.keys('/').length) {
-                await sleep(sleepTime);
                 spinner.start('Fazendo modificações package.json...');
 
                 await this.modifyPackage();
