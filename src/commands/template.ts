@@ -34,7 +34,7 @@ export class Template {
 
         if (Object.keys(templateDownloaded.data?.env || {}).length) {
             const templateEnv = templateDownloaded.data.env;
-            env.update('/', { ...env.all(), ...templateEnv });
+            env.set('/', { ...env.all(), ...templateEnv });
         }
 
         const addResource = await confirm({

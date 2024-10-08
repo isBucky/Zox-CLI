@@ -29,7 +29,7 @@ export class Resource {
 
         if (Object.keys(resourceDownloaded.data?.env || {}).length) {
             const templateEnv = resourceDownloaded.data.env;
-            env.update('/', { ...env.all(), ...templateEnv });
+            env.set('/', { ...env.all(), ...templateEnv });
         }
 
         if (installPackagesAfterTemplate) {

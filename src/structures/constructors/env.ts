@@ -56,7 +56,14 @@ export class Env {
     public set(name: string, value?: any) {
         const content = this.content();
 
-        content.set(this.formatName(name), this.formatValue(value));
+        if (name !== '/') {
+            const formattedValue = this.formatValue(value);
+            if (!formattedValue) return;
+
+            value = formattedValue;
+        }
+
+        content.set(this.formatName(name), value);
         return this.write(content);
     }
 
@@ -69,19 +76,6 @@ export class Env {
         const content = this.content();
 
         content.delete(this.formatName(name));
-        return this.write(content);
-    }
-
-    /**
-     * Use para atualizar valores no .env
-     *
-     * @param name Nome do valor
-     * @param value Valor
-     */
-    public update(name: string, value?: string) {
-        const content = this.content();
-
-        content.update(this.formatName(name), this.formatValue(value));
         return this.write(content);
     }
 
@@ -104,7 +98,7 @@ export class Env {
     }
 
     private formatValue(value: any) {
-        if (!value) return '';
+        if (!value) return;
 
         if (['object', 'array'].includes(typeof value)) return JSON.stringify(value);
         return value.toString().replace(new RegExp(' ', 'gi'), '');
