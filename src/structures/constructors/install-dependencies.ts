@@ -57,13 +57,6 @@ function install(options: InstallOptions) {
     const dependencies = options.dependencies.join(' ');
     const isDev = options.dev ? (options.installer == 'bun' ? '-d' : '-D') : '';
 
-    console.log(
-        [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(
-            ' && ',
-        ),
-        '\n',
-    );
-
     return exec(
         [`cd ${global['currentLocal']}`, `${installerCommand} ${isDev} ${dependencies}`].join(
             ' && ',
