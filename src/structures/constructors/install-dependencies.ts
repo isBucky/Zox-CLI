@@ -29,7 +29,7 @@ export async function installPackages({
 
         spinner.info(
             buildListInConsole(
-                `Total de ${dependencies?.length} pacotes foram instalados`,
+                `Total de ${removeArrayDuplicates(dependencies)?.length} pacotes foram instalados`,
                 dependencies,
             ),
         );
@@ -44,7 +44,7 @@ export async function installPackages({
 
         spinner.info(
             buildListInConsole(
-                `Total de ${dependencies?.length} pacotes de desenvolvimento foram instalados`,
+                `Total de ${removeArrayDuplicates(devDependencies)?.length} pacotes de desenvolvimento foram instalados`,
                 devDependencies,
             ),
         );
@@ -58,7 +58,7 @@ export async function installPackages({
  */
 function install(options: InstallOptions) {
     // Exemplo: npm install ou yarn add
-    const installerCommand = `${options.installer} ${options.installer == 'npm' ? 'install' : 'add'}`;
+    const installerCommand = `${options.installer} ${options.installer == 'npm' ? 'install' : 'install'}`;
     const dependencies = options.dependencies.join(' ');
     const isDev = options.dev ? (options.installer == 'bun' ? '-d' : '-D') : '';
 
