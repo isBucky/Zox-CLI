@@ -1,6 +1,7 @@
 import { exec, buildListInConsole } from '../functions';
 
 import { select } from '@inquirer/prompts';
+import { removeArrayDuplicates } from 'bucky.js';
 import ora from 'ora';
 
 /**
@@ -18,13 +19,13 @@ export async function installPackages({
     const installer: Installers = await select({
         message: 'Qual instalador você usa:',
         choices: ['npm', 'pnpm', 'yarn', 'bun'] as Installers[],
-        default: 'pnpm',
+        default: 'bun',
     });
 
     const spinner = ora().start('Fazendo a instalação dos pacotes e pacotes de desenvolvimento...');
 
     if (dependencies?.length) {
-        await install({ installer, dependencies });
+        await install({ installer, dependencies: removeArrayDuplicates(dependencies) });
 
         spinner.info(
             buildListInConsole(
@@ -35,7 +36,11 @@ export async function installPackages({
     }
 
     if (devDependencies?.length) {
-        await install({ installer, dependencies: devDependencies, dev: true });
+        await install({
+            installer,
+            dependencies: removeArrayDuplicates(devDependencies),
+            dev: true,
+        });
 
         spinner.info(
             buildListInConsole(
